@@ -1,4 +1,4 @@
-﻿namespace GI.ControlePonto.Domain.Entities
+﻿namespace DPA.Sapewin.Domain.Entities
 {
     public class PermissoesdeSetores
     {       
@@ -10,6 +10,6 @@
 
         public virtual Setores Setor { get; set; }
 
-        public virtual Empresas Empresa { get; set; }
+        public virtual Companies Empresa { get; set; }
     }
 }

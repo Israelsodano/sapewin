@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     [Table("ponto")]
     public class Ponto

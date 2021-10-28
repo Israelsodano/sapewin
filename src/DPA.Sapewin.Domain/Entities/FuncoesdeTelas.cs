@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class FuncoesdeTelas
     {
@@ -14,7 +14,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual IList<PermissoesdeTelas> PermissoesdeTelas { get; set; }
 
-        public virtual Funcoes Funcao { get; set; }
+        public virtual Functions Funcao { get; set; }
 
         public virtual Telas Tela { get; set; }
     }

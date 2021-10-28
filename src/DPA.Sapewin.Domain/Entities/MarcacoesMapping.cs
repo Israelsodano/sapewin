@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     [Table("marcacoes")]
     public class Marcacoes
@@ -20,14 +20,14 @@ namespace GI.ControlePonto.Domain.Entities
 
         public DateTime datahora { get; set; }
 
-        public static implicit operator Marcacoes(ApontamentoSujo obj){
-            DateTime datahora = Convert.ToDateTime(obj.data.ToShortDateString() + " " + obj.hora);
+        public static implicit operator Marcacoes(DirtyNote obj){
+            DateTime datahora = Convert.ToDateTime(obj.Date.ToShortDateString() + " " + obj.Hour);
 
             return obj == null ? null : new Marcacoes
             {
-                nfr = obj.nfr,
-                nsr = obj.nsr,
-                chaveUniqueMarc = obj.chaveUniqueMarc,
+                nfr = obj.Nfr,
+                nsr = obj.Nsr,
+                chaveUniqueMarc = obj.UniqueMarkingKey,
                 datahora = datahora,
             };
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class MensagensFuncionarios
     {
@@ -16,8 +16,8 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual Mensagem Mensagem { get; set; }
 
-        public virtual Funcionarios Funcionario { get; set; }
+        public virtual Employees Funcionario { get; set; }
 
-        public virtual Empresas Empresa { get; set; }
+        public virtual Companies Empresa { get; set; }
     }
 }

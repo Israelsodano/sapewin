@@ -1,4 +1,4 @@
-﻿namespace GI.ControlePonto.Domain.Entities
+﻿namespace DPA.Sapewin.Domain.Entities
 {
     public class PermissoesdeFuncionarios
     {       
@@ -8,8 +8,8 @@
 
         public virtual int IDEmpresa { get; set; }
 
-        public Funcionarios Funcionario { get; set; }
+        public Employees Funcionario { get; set; }
 
-        public Empresas Empresa { get; set; }
+        public Companies Empresa { get; set; }
     }
 }

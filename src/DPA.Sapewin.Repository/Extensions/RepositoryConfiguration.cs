@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DPA.Sapewin.Repository.Internals.Event;
 
-namespace DPA.Sapewin.Repository.Extenssions
+namespace DPA.Sapewin.Repository.Extensions
 { 
     public interface IRepositoryConfiguration
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class PermissoesdeTelas
     {      
@@ -10,7 +10,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual String IDFuncaoTela { get; set; }
 
-        public virtual Empresas Empresa { get; set; }
+        public virtual Companies Empresa { get; set; }
 
         public virtual FuncoesdeTelas FuncaodeTela { get; set; }
     }

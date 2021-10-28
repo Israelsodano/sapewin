@@ -2,7 +2,7 @@ using System;
 using DPA.Sapewin.Repository.Internals.Event;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DPA.Sapewin.Repository.Extenssions
+namespace DPA.Sapewin.Repository.Extensions
 {
     public static class RepositoryExtensions
     {

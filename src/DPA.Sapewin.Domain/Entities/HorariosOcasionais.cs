@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class HorariosOcasionais
     {
@@ -14,7 +14,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual DateTime Data { get; set; }
 
-        public virtual Funcionarios Funcionario { get; set; }
+        public virtual Employees Funcionario { get; set; }
 
         public virtual Horarios Horario { get; set; }
     }

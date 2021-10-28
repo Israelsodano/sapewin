@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class Setores
     {      
@@ -11,11 +11,11 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual String Nome { get; set; }
 
-        public virtual IList<Funcionarios> Funcionarios { get; set; }
+        public virtual IList<Employees> Funcionarios { get; set; }
 
         public virtual IList<PermissoesdeSetores> PermissoesdeSetores { get; set; }
 
-        public virtual Empresas Empresa { get; set; }
+        public virtual Companies Empresa { get; set; }
 
     }
 }

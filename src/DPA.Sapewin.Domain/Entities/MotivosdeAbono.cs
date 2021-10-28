@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class MotivosdeAbono
     {       
@@ -18,6 +18,6 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual bool Favorito { get; set; }
 
-        public virtual Empresas Empresa { get; set; }
+        public virtual Companies Empresa { get; set; }
     }
 }

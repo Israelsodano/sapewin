@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class GrupodeFeriados
     {
@@ -9,7 +9,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual String Descricao { get; set; }
 
-        public virtual IList<FeriadosEspecificos> FeriadosEspecificos { get; set; }
+        public virtual IList<SpecificHolidays> FeriadosEspecificos { get; set; }
 
         public String ListaFeriados;
     }

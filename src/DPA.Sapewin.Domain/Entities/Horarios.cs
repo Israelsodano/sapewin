@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class Horarios
     {
@@ -11,7 +11,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public int Order;
 
-        public EscalasHorarios.diainicio DiaInicio;
+        public ScheduleScalesStartDay DiaInicio;
 
         public bool Direto;
 
@@ -51,7 +51,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual tipo Tipo { get; set; }
 
-        public virtual Empresas Empresa { get; set; }        
+        public virtual Companies Empresa { get; set; }        
 
         public virtual IList<IntervalosAuxiliares> IntervalosAuxiliares { get; set; }
 

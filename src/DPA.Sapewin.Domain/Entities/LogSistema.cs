@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class LogSistema
     {

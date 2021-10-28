@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GI.ControlePonto.Domain.Entities
+namespace DPA.Sapewin.Domain.Entities
 {
     public class IntervalosAuxiliares
     {
@@ -18,7 +18,7 @@ namespace GI.ControlePonto.Domain.Entities
 
         public virtual tipo Tipo { get; set; }
 
-        public virtual Empresas Empresa { get; set; }
+        public virtual Companies Empresa { get; set; }
 
         public virtual Horarios Horarios { get; set; }
 
