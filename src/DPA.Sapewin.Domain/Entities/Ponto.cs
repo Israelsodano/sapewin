@@ -10,7 +10,7 @@ namespace DPA.Sapewin.Domain.Entities
         public int IDPonto { get; set; }
         public int IDFilaProcesso { get; set; }
         public long IDFuncionario { get; set; }
-        public int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
         public string DsrPago { get; set; }
         public string DsrDescontado { get; set; }
         public string PagExtrapPer1 { get; set; }
@@ -45,7 +45,7 @@ namespace DPA.Sapewin.Domain.Entities
         public string ExtraAdicDesPer2 { get; set; }
         public string ExtraAdicDesInter { get; set; }
         public string ReferenciaSemHorario { get; set; }
-        public virtual IEnumerable<PontoPares> Pares { get; set; }
+        public IEnumerable<PontoPares> Pares { get; set; }
 
         public const string Folga = "Folga";
         public const string Sabado = "Sabado";

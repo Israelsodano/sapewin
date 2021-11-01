@@ -14,7 +14,7 @@ namespace DPA.Sapewin.Domain.Entities
         public bool Direct { get; set; }
         public ScheduleScalesStartDay StartDay { get; set; }
         public DateTime EntryTime { get; set; }
-        public Companies Company { get; set; }
+        public Companie Company { get; set; }
         public Scales Scales { get; set; }
     }
     public enum ScheduleScalesStartDay

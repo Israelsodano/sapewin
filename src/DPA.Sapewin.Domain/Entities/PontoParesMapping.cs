@@ -10,7 +10,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public int IDPonto { get; set; }
 
-        public int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
 
         public long IDFuncionario { get; set; }
 
@@ -29,12 +29,12 @@ namespace DPA.Sapewin.Domain.Entities
         public int Ordem { get; set; }
 
         [ForeignKey("IDPonto")]
-        public virtual Ponto Ponto { get; set; }
+        public Ponto Ponto { get; set; }
 
         [ForeignKey("IDEntradaOri")]
-        public virtual Marcacoes EntradaOriginal { get; set; }
+        public Marcacoes EntradaOriginal { get; set; }
 
         [ForeignKey("IDSaidaOri")]
-        public virtual Marcacoes SaidaOriginal { get; set; }
+        public Marcacoes SaidaOriginal { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace DPA.Sapewin.Domain.Entities
 {
     public class Positions : Entity
     {
-        public virtual string Name { get; set; }
-        public virtual IEnumerable<Employees> Employees { get; set; }
+        public string Name { get; set; }
+        public IEnumerable<Employee> Employees { get; set; }
     }
 }

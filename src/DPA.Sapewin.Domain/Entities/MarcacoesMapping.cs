@@ -16,7 +16,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public long IDFuncionario { get; set; }
 
-        public int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
 
         public DateTime datahora { get; set; }
 

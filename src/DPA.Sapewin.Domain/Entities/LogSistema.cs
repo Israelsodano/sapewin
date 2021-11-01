@@ -4,18 +4,18 @@ namespace DPA.Sapewin.Domain.Entities
 {
     public class LogSistema
     {
-        public virtual int IDLog { get; set; }
+        public int IDLog { get; set; }
 
-        public virtual String IP { get; set; }
+        public string IP { get; set; }
 
-        public virtual int IDUsuario { get; set; }
+        public int IDUsuario { get; set; }
 
-        public virtual String Funcao { get; set; }
+        public string Funcao { get; set; }
 
-        public virtual String Tela { get; set; }
+        public string Tela { get; set; }
 
-        public virtual String Descricao { get; set; }
+        public string Descricao { get; set; }
 
-        public virtual DateTime DataHora { get; set; }
+        public DateTime DataHora { get; set; }
     }
 }
