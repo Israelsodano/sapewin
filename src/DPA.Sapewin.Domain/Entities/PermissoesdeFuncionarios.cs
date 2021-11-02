@@ -6,7 +6,7 @@ namespace DPA.Sapewin.Domain.Entities
     {       
         public int IDUsuario { get; set; }
 
-        public long IDFuncionario { get; set; }
+        public Guid EmployeeId { get; set; }
 
         public Guid CompanyId { get; set; }
 

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Parametros
+    public class Parametros : Entity
     {
-        public int IDParametro { get; set; }
 
         public Guid CompanyId { get; set; }
 
-        public string Nome { get; set; }
+        public string Name { get; set; }
 
         public Tipodetolerancia TipodeTolerancia { get; set; }
 

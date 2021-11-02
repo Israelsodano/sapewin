@@ -9,7 +9,7 @@ namespace DPA.Sapewin.Domain.Entities
     {
         public int IDPonto { get; set; }
         public int IDFilaProcesso { get; set; }
-        public long IDFuncionario { get; set; }
+        public Guid EmployeeId { get; set; }
         public Guid CompanyId { get; set; }
         public string DsrPago { get; set; }
         public string DsrDescontado { get; set; }

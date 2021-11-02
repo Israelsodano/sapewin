@@ -34,7 +34,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public IList<AuxiliaryInterval> IntervalosAuxiliares { get; set; }
 
-        public IList<HorariosOcasionais> HorariosOcasionais { get; set; }
+        public IList<OccasionalSchedule> HorariosOcasionais { get; set; }
 
         public enum ScheduleKind
         {

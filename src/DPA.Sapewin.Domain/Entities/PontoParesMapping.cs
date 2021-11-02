@@ -12,7 +12,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public Guid CompanyId { get; set; }
 
-        public long IDFuncionario { get; set; }
+        public Guid EmployeeId { get; set; }
 
         public DateTime? DataHoraEntrada { get; set; }
 

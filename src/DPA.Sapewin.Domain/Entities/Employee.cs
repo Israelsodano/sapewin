@@ -39,7 +39,7 @@ namespace DPA.Sapewin.Domain.Entities
         public IEnumerable<MensagensFuncionarios> CardMessages { get; set; }
         public IEnumerable<Leaves> Leaves { get; set; }
         public IEnumerable<DayOff> DaysOff { get; set; }
-        public IEnumerable<HorariosOcasionais> OccasionalSchedules { get; set; }
+        public IEnumerable<OccasionalSchedule> OccasionalSchedules { get; set; }
         public IEnumerable<ProximityCard> ProximityCards { get; set; }
         public Scales Scale { get; set; }
     }
