@@ -14,7 +14,7 @@ namespace DPA.Sapewin.Domain.Entities
         public Livs Liv { get; set; }
         public Turns Turn { get; set; }
         public IEnumerable<ScheduleScales> ScheduleScales { get; set; }
-        public IEnumerable<Employees> Employees { get; set; }
+        public IEnumerable<Employee> Employees { get; set; }
     }
     public enum ScalesType
     {

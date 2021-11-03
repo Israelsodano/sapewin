@@ -1,15 +1,17 @@
-﻿namespace DPA.Sapewin.Domain.Entities
+﻿using System;
+
+namespace DPA.Sapewin.Domain.Entities
 {
     public class PermissoesdeSetores
     {       
-        public virtual int IDUsuario { get; set; }
+        public int IDUsuario { get; set; }
 
-        public virtual long IDSetor { get; set; }
+        public long IDSetor { get; set; }
 
-        public virtual int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
 
-        public virtual Setores Setor { get; set; }
+        public Setores Setor { get; set; }
 
-        public virtual Companies Empresa { get; set; }
+        public Companie Empresa { get; set; }
     }
 }

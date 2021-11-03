@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Telas
+    public class Screen
     {      
-        public virtual int IDTela { get; set; }
+        public int IDTela { get; set; }
 
-        public virtual String Nome { get; set; }
+        public string Nome { get; set; }
 
-        public virtual IList<FuncoesdeTelas> FuncoesdeTelas { get; set; }
+        public IList<ScreenFunction> FuncoesdeTelas { get; set; }
     }
 }

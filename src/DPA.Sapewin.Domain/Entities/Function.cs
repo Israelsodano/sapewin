@@ -4,9 +4,9 @@ using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Functions : Entity
+    public class Function : Entity
     {               
         public string Name { get; set; }
-        public IEnumerable<FuncoesdeTelas> ViewFunctions { get; set; }
+        public IEnumerable<ScreenFunction> ViewFunctions { get; set; }
     }
 }

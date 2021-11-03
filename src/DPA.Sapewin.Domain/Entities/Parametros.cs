@@ -1,121 +1,121 @@
 ﻿using System;
 using System.Collections.Generic;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Parametros
+    public class Parametros : Entity
     {
-        public virtual int IDParametro { get; set; }
 
-        public virtual int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
 
-        public virtual String Nome { get; set; }
+        public string Name { get; set; }
 
-        public virtual Tipodetolerancia TipodeTolerancia { get; set; }
+        public Tipodetolerancia TipodeTolerancia { get; set; }
 
-        public virtual Tipodeatraso? TipodeAtraso { get; set; }
+        public Tipodeatraso? TipodeAtraso { get; set; }
 
-        public virtual String AtrasoTotal1P { get; set; }
+        public string AtrasoTotal1P { get; set; }
 
-        public virtual String AtrasoTotal2P { get; set; }
+        public string AtrasoTotal2P { get; set; }
 
-        public virtual String AtrasoJornada { get; set; }
+        public string AtrasoJornada { get; set; }
 
-        public virtual Tipodesaida? TipodeSaida { get; set; }
+        public Tipodesaida? TipodeSaida { get; set; }
 
-        public virtual String SaidaTotal1P { get; set; }
+        public string SaidaTotal1P { get; set; }
 
-        public virtual String SaidaTotal2P { get; set; }
+        public string SaidaTotal2P { get; set; }
 
-        public virtual String SaidaJornada { get; set; }
+        public string SaidaJornada { get; set; }
 
-        public virtual Tipoextra? TipoExtra { get; set; }
+        public Tipoextra? TipoExtra { get; set; }
 
-        public virtual String ExtraTotal1P { get; set; }
+        public string ExtraTotal1P { get; set; }
 
-        public virtual String ExtraTotalIntervalo { get; set; }
+        public string ExtraTotalIntervalo { get; set; }
 
-        public virtual String ExtraTotal2P { get; set; }
+        public string ExtraTotal2P { get; set; }
 
-        public virtual String ExtraJornada { get; set; }
+        public string ExtraJornada { get; set; }
 
-        public virtual ToleranciaGeraltipo? ToleranciaGeralTipo { get; set; }
+        public ToleranciaGeraltipo? ToleranciaGeralTipo { get; set; }
 
-        public virtual String ToleranciaGeral1P { get; set; }
+        public string ToleranciaGeral1P { get; set; }
 
-        public virtual String ToleranciaGeral2P { get; set; }
+        public string ToleranciaGeral2P { get; set; }
 
-        public virtual String ToleranciaGeralJornada { get; set; }
+        public string ToleranciaGeralJornada { get; set; }
 
-        public virtual String ToleranciaGeralIntervalo { get; set; }
+        public string ToleranciaGeralIntervalo { get; set; }
 
-        public virtual bool PgExtraAdcn { get; set; }
+        public bool PgExtraAdcn { get; set; }
 
-        public virtual String AdicionalNoturnoInicio { get; set; }
+        public string AdicionalNoturnoInicio { get; set; }
 
-        public virtual String AdicionalNoturnoFim { get; set; }
+        public string AdicionalNoturnoFim { get; set; }
 
-        public virtual double CalculoAdicional { get; set; }
+        public double CalculoAdicional { get; set; }
 
-        public virtual bool ExtraAdicionalMaisAdicional { get; set; }
+        public bool ExtraAdicionalMaisAdicional { get; set; }
 
-        public virtual bool ExtraAdicionalAcresNormais { get; set; }
+        public bool ExtraAdicionalAcresNormais { get; set; }
 
-        public virtual bool PagaAdcAbono { get; set; }
+        public bool PagaAdcAbono { get; set; }
 
-        public virtual String ReduzidoaCada { get; set; }
+        public string ReduzidoaCada { get; set; }
 
-        public virtual String ReduzidoAdiciona { get; set; }
+        public string ReduzidoAdiciona { get; set; }
 
-        public virtual String DsrSabado { get; set; }
+        public string DsrSabado { get; set; }
 
-        public virtual String DsrDomingo { get; set; }
+        public string DsrDomingo { get; set; }
 
-        public virtual String DsrFeriado { get; set; }
+        public string DsrFeriado { get; set; }
 
-        public virtual String DsrFolga { get; set; }
+        public string DsrFolga { get; set; }
 
-        public virtual bool ControleAutomaticoDsr { get; set; }
+        public bool ControleAutomaticoDsr { get; set; }
 
-        public virtual bool? DsrProporcionalHoras { get; set; }
+        public bool? DsrProporcionalHoras { get; set; }
 
-        public virtual bool DescontarDsrSemana { get; set; }
+        public bool DescontarDsrSemana { get; set; }
 
-        public virtual bool? DescDsrAnterioraFalta { get; set; }
+        public bool? DescDsrAnterioraFalta { get; set; }
 
-        public virtual String OcorrenciaSemanalDsr { get; set; }
+        public string OcorrenciaSemanalDsr { get; set; }
 
         public Tipodetabela TipodeTabela { get; set; }
 
-        public virtual bool PgDiautilvirada { get; set; }
+        public bool PgDiautilvirada { get; set; }
 
-        public virtual bool? DescIntervalo { get; set; }
+        public bool? DescIntervalo { get; set; }
 
-        public virtual bool SabadoUtil { get; set; }
+        public bool SabadoUtil { get; set; }
 
-        public virtual bool DomingoUtil { get; set; }
+        public bool DomingoUtil { get; set; }
 
-        public virtual bool FerAgregaDomingo { get; set; }
+        public bool FerAgregaDomingo { get; set; }
 
-        public virtual bool FolAgregaDomingo { get; set; }
+        public bool FolAgregaDomingo { get; set; }
 
-        public virtual int AcimadexhorasDomingo { get; set; }
+        public int AcimadexhorasDomingo { get; set; }
 
-        public virtual int AcimaHEDomingo { get; set; }
+        public int AcimaHEDomingo { get; set; }
 
-        public virtual int AcimaHEFeriado { get; set; }
+        public int AcimaHEFeriado { get; set; }
 
-        public virtual int AcimadexhorasFeriado { get; set; }
+        public int AcimadexhorasFeriado { get; set; }
 
-        public virtual int AcimaHEFolga { get; set; }
+        public int AcimaHEFolga { get; set; }
 
-        public virtual int AcimadexhorasFolga { get; set; }
+        public int AcimadexhorasFolga { get; set; }
 
-        public virtual bool MostrarIntervaloSeparado { get; set; }
+        public bool MostrarIntervaloSeparado { get; set; }
 
-        public virtual bool AdcnFinaldoexpediente { get; set; }
+        public bool AdcnFinaldoexpediente { get; set; }
 
-        public virtual bool SomaExtraAdicional { get; set; }
+        public bool SomaExtraAdicional { get; set; }
 
 
         public enum Tipodetolerancia
@@ -150,9 +150,9 @@ namespace DPA.Sapewin.Domain.Entities
 
         public const string ValorPadraoDsr = "07:20";
 
-        public virtual IList<OvertimeScheduling> EscalonamentodeHoraExtra { get; set; }
+        public IList<OvertimeScheduling> EscalonamentodeHoraExtra { get; set; }
 
-        public virtual IList<Employees> Funcionarios { get; set; }
+        public IList<Employee> Funcionarios { get; set; }
 
     }
 }

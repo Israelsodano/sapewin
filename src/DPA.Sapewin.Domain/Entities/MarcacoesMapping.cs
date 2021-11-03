@@ -14,9 +14,9 @@ namespace DPA.Sapewin.Domain.Entities
 
         public string chaveUniqueMarc { get; set; }
 
-        public long IDFuncionario { get; set; }
+        public Guid EmployeeId { get; set; }
 
-        public int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
 
         public DateTime datahora { get; set; }
 

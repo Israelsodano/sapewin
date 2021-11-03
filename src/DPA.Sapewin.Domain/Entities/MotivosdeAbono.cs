@@ -4,20 +4,20 @@ namespace DPA.Sapewin.Domain.Entities
 {
     public class MotivosdeAbono
     {       
-        public virtual int IDEmpresa { get; set; }
+        public Guid CompanyId { get; set; }
 
-        public virtual String Nome { get; set; }
+        public string Nome { get; set; }
 
-        public virtual String Abreviacao { get; set; }
+        public string Abreviacao { get; set; }
 
-        public virtual String EventDia { get; set; }
+        public string EventDia { get; set; }
 
-        public virtual String EventHora { get; set; }
+        public string EventHora { get; set; }
 
-        public virtual String Tipo { get; set; }
+        public string Tipo { get; set; }
 
-        public virtual bool Favorito { get; set; }
+        public bool Favorito { get; set; }
 
-        public virtual Companies Empresa { get; set; }
+        public Companie Empresa { get; set; }
     }
 }
