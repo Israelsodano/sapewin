@@ -6,7 +6,6 @@ namespace DPA.Sapewin.Domain.Entities
 {
     public class Parametros : Entity
     {
-
         public Guid CompanyId { get; set; }
 
         public string Name { get; set; }
