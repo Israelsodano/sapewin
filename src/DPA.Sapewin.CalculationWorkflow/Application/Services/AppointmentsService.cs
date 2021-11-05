@@ -9,7 +9,9 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IAppointmentsService
     {
-
+        Task ImportDirtyNotes(IEnumerable<Employee> employees, 
+                                           DateTime initial, 
+                                           DateTime final);
     }
 
     public class AppointmentsService : IAppointmentsService
