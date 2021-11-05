@@ -18,7 +18,7 @@ namespace DPA.Sapewin.Repository.Extensions
         
         public IRepositoryConfiguration AddEntityDomain<TEntity>() where TEntity : Entity
         {
-            Injections.Add((typeof(IUnityOfWork<TEntity>), typeof(UnityOfWork<TEntity>)));
+            Injections.Add((typeof(IUnitOfWork<TEntity>), typeof(UnitOfWork<TEntity>)));
             Injections.Add((typeof(IRepository<TEntity>), typeof(Internals.Repository<TEntity>)));
             return this;
         }

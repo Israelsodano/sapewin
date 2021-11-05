@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DPA.Sapewin.Repository
 {
-    public interface IUnityOfWork<TEntity> where TEntity : Entity
+    public interface IUnitOfWork<TEntity> where TEntity : Entity
     {
         IRepository<TEntity> Repository { get; }
         Task<IDbContextTransaction> BeginTransactionAsync();

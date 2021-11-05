@@ -32,9 +32,9 @@ namespace DPA.Sapewin.Domain.Entities
         public Ponto Ponto { get; set; }
 
         [ForeignKey("IDEntradaOri")]
-        public Marcacoes EntradaOriginal { get; set; }
+        public Appointment EntradaOriginal { get; set; }
 
         [ForeignKey("IDSaidaOri")]
-        public Marcacoes SaidaOriginal { get; set; }
+        public Appointment SaidaOriginal { get; set; }
     }
 }
