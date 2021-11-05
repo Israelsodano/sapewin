@@ -1,0 +1,18 @@
+Migrar 
+ IniciaProcessamento
+   LimpaTabelas
+   MontarCalendarioDosFuncionarios
+   SalvarMarcacoesDePontoDaBaseSujaNaBaseLimpa
+   EstruturarMarcacoesPorDia
+   PegarMarcacoesDeUmDia
+   EncaixaMarcacoesCarga
+   EncaixaMarcacoesFixo
+   CalculaAtraso
+   CalculaSaidaAntecipado
+   CalculaHorasTrabalhadas
+   CalculaFaltas
+   CalculaHorasExtras
+   CalculaAdicionalNoturno
+   CalculaDSR
+
+

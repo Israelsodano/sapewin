@@ -4,7 +4,7 @@ using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Scales : Entity
+    public class Scale : Entity
     {
         public Guid CompanyId { get; set; }
         public Guid TurnId { get; set; }

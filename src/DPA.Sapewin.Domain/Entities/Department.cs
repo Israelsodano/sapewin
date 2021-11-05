@@ -9,7 +9,7 @@ namespace DPA.Sapewin.Domain.Entities
         public Guid CompanyId { get; set; }
         public string Name { get; set; }
         public IEnumerable<Employee> Employees { get; set; }
-        public Companie Company { get; set; }
+        public Company Company { get; set; }
         public IEnumerable<PermissoesdeDepartamentos> DepartmentPermission { get; set; }
     }
 }

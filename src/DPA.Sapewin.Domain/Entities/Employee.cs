@@ -23,7 +23,7 @@ namespace DPA.Sapewin.Domain.Entities
         public Setores Sector { get; set; }
         public Parametros Parameter { get; set; }
         public Department Department { get; set; }
-        public Companie Company { get; set; }
+        public Company Company { get; set; }
         public HolidayGroup HolidaysGroup { get; set; }
         public bool FixedInterval { get; set; }
         public EmployeeHoliday Holiday { get; set; }
@@ -37,11 +37,11 @@ namespace DPA.Sapewin.Domain.Entities
         public bool StandartPicture { get; set; }
         public Guid ScaleId { get; set; }
         public IEnumerable<MensagensFuncionarios> CardMessages { get; set; }
-        public IEnumerable<Leaves> Leaves { get; set; }
+        public IEnumerable<Leave> Leaves { get; set; }
         public IEnumerable<DayOff> DaysOff { get; set; }
         public IEnumerable<OccasionalSchedule> OccasionalSchedules { get; set; }
         public IEnumerable<ProximityCard> ProximityCards { get; set; }
-        public Scales Scale { get; set; }
+        public Scale Scale { get; set; }
     }
     
     public enum EmployeeHoliday

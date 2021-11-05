@@ -30,11 +30,11 @@ namespace DPA.Sapewin.Domain.Entities
 
         public ScheduleKind Kind { get; set; }
 
-        public Companie Empresa { get; set; }        
+        public Company Company { get; set; }        
 
-        public IList<AuxiliaryInterval> IntervalosAuxiliares { get; set; }
+        public IList<AuxiliaryInterval> AuxiliaryIntervals { get; set; }
 
-        public IList<OccasionalSchedule> HorariosOcasionais { get; set; }
+        public IList<OccasionalSchedule> OccasionalSchedules { get; set; }
 
         public enum ScheduleKind
         {

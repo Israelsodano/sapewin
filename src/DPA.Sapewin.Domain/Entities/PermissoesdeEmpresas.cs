@@ -8,6 +8,6 @@ namespace DPA.Sapewin.Domain.Entities
 
         public Guid CompanyId { get; set; }
 
-        public Companie Empresa { get; set; }
+        public Company Empresa { get; set; }
     }
 }
