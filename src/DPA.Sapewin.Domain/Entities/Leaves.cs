@@ -3,7 +3,7 @@ using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Leaves : Entity
+    public class Leave : Entity
     {
         public Guid EmployeeId { get; set; }
         public Guid CompanyId { get; set; }

@@ -10,7 +10,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public string IDFuncaoTela { get; set; }
 
-        public Companie Empresa { get; set; }
+        public Company Empresa { get; set; }
 
         public ScreenFunction FuncaodeTela { get; set; }
     }
