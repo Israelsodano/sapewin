@@ -42,7 +42,7 @@ namespace DPA.Sapewin.Domain.Entities
         public string ExtraAdicDesPer2 { get; set; }
         public string ExtraAdicDesInter { get; set; }
         public string ReferenciaSemHorario { get; set; }
-        public IEnumerable<PontoPares> Pares { get; set; }
+        public IEnumerable<EletronicPointPairs> Pairs { get; set; }
         public IEnumerable<Appointment> Appointments { get; set; }
         public Schedule Schedule { get; set; }
         public Employee Employee { get; set; }
