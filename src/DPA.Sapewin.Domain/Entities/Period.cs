@@ -4,12 +4,12 @@ namespace DPA.Sapewin.Domain.Entities
 {
     public class Period : Entity
     {
-        public string Entry { get; set; }
+        public int Entry { get; set; }
 
-        public string IntervalIn { get; set; }
+        public int IntervalIn { get; set; }
 
-        public string IntervalOut { get; set; }
+        public int IntervalOut { get; set; }
 
-        public string WayOut { get; set; }
+        public int WayOut { get; set; }
     }
 }

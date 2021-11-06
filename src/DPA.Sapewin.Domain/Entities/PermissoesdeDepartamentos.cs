@@ -12,6 +12,6 @@ namespace DPA.Sapewin.Domain.Entities
 
         public Department Departamento { get; set; }
 
-        public Companie Empresa { get; set; }
+        public Company Empresa { get; set; }
     }
 }

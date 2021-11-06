@@ -4,121 +4,95 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DPA.Sapewin.Domain.Entities;
+using DPA.Sapewin.Domain.Models.Enums;
 using DPA.Sapewin.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IClearTablesService 
     {
-        /*TiposProcessamento não sei da onde vem*/
-        Task Clear(DateTime initalDate, DateTime finalDate, IList<Employee> employeess);
+        Task Clear(DateTime initalDate, DateTime finalDate, IList<Employee> employeess, ProcessingTypes processingType);
     }
 
     public class ClearTablesService : IClearTablesService
     {
-        IUnityOfWork<Ponto> _unitOfWorkPonto;
-        IUnityOfWork<Markup> _unitOfWorkMarkups;
-        IUnityOfWork<PontoPares> _unitOfWorkPontoPair;
+        IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
+        IUnitOfWork<Markup> _unitOfWorkMarkups;
+        IUnitOfWork<EletronicPointPairs> _unitOfWorkEletronicPointPairs;
 
         public ClearTablesService(
   
-            IUnityOfWork<Ponto> unitOfWorkPonto,
-            IUnityOfWork<Markup> unitOfWorkMarkups,
-            IUnityOfWork<PontoPares> unitOfWorkPontoPair)
+            IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint,
+            IUnitOfWork<Markup> unitOfWorkMarkups,
+            IUnitOfWork<EletronicPointPairs> unitOfWorkEletronicPointPairs)
         {
-            _unitOfWorkPonto = unitOfWorkPonto ?? throw new ArgumentNullException(nameof(unitOfWorkPonto));
+            _unitOfWorkEletronicPoint = unitOfWorkEletronicPoint ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPoint));
             _unitOfWorkMarkups = unitOfWorkMarkups ?? throw new ArgumentNullException(nameof(unitOfWorkMarkups));
-            _unitOfWorkPontoPair = unitOfWorkPontoPair ?? throw new ArgumentNullException(nameof(unitOfWorkPontoPair));
+            _unitOfWorkEletronicPointPairs = unitOfWorkEletronicPointPairs ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPointPairs));
         }
 
         public async Task Clear(DateTime initialDate,
             DateTime finalDate,
             IList<Employee> employees,
-            TiposProcessamento processingType)
+            ProcessingTypes processingType)
         {
-            IRepository<Ponto> repPonto = _repositoryPonto.Clone();
-            IRepository<Markup> repMarkups = _repositoryMarkups.Clone();
-            IRepository<PontoPares> repPontoPares = _repositoryPontoPairs.Clone();
+            Expression<Func<EletronicPoint, bool>> expression = null;
+            var deletemarkups = false;
 
-            Expression<Func<Ponto, bool>> expression = null;
-            bool deletemarkups = false;
-
-            Task ClearPontos = new Task(() =>
+            var clearEletronicPoints = new Task(() =>
             {
-                IList<Ponto> normalPontosList = repPonto.GetAll().Include(x => x.Pares)
-                        .Include("Pares.EntradaOriginal")
-                        .Include("Pares.SaidaOriginal")
-                        .Where(expression).ToArray();
+                var normalEletronicPointsList = _unitOfWorkEletronicPoint.Repository.GetAll(expression)
+                    .Include(x => x.Pairs)
+                    .Include("Pares.EntradaOriginal")
+                    .Include("Pares.SaidaOriginal")
+                    .ToArray();
+               
 
-                List<Markup> markups = new List<Markup>();
-                List<PontoPares> pontopares = new List<PontoPares>();
-                for (int i = 0; i < normalPontosList.Count; i++)
+                var markups = new List<Markup>();
+                var eletronicPointPairs = new List<EletronicPointPairs>();
+
+                for (int i = 0; i < normalEletronicPointsList.Length; i++)
                 {
-                    if (normalPontosList[i].Pares.Count() > 0)
+                    if (normalEletronicPointsList[i].Pairs.Any())
                     {
-                        pontopares.AddRange(normalPontosList[i].Pares);
-                        markups.AddRange(normalPontosList[i].Pares.Select(x => x.EntradaOriginal));
-                        markups.AddRange(normalPontosList[i].Pares.Select(x => x.SaidaOriginal));
+                        eletronicPointPairs.AddRange(normalEletronicPointsList[i].Pairs);
+                        markups.AddRange(normalEletronicPointsList[i].Pairs.Select(x => x.OriginalInput));
+                        markups.AddRange(normalEletronicPointsList[i].Pairs.Select(x => x.OriginalOutput));
                     }
 
-                    normalPontosList[i].Pares = null;
-                }
+                    normalEletronicPointsList[i].Pairs = null;
+               
+                    _unitOfWorkEletronicPointPairs.Repository.Delete(x => eletronicPointPairs.Any(y => y.Id == x.Id));
+                    _unitOfWorkEletronicPointPairs.SaveChangesAsync();
+                
 
-                try
-                {
+                    _unitOfWorkEletronicPoint.Repository.Delete(x => normalEletronicPointsList.Any(y => y.Id == x.Id));
+                    _unitOfWorkEletronicPoint.SaveChangesAsync();
+                
+                    if (deletemarkups)
                     {
-                        _unitOfWorkPontoPair.BeginTransactionAsync().Wait();
-                        repPontoPares.Delete(pontopares);
-                        _unitOfWorkPontoPair.SaveChangesAsync().Wait();
+                        markups.RemoveAll(x => x == null);
+                        _unitOfWorkMarkups.Repository.Delete(x => markups.Exists(y => y.Id == x.Id));
+                        _unitOfWorkMarkups.SaveChangesAsync();
                     }
-
-                    {
-                        _unitOfWorkPonto.BeginTransactionAsync().Wait();
-                        repPonto.Delete(normalPontosList);
-                        _unitOfWorkPonto.SaveChangesAsync().Wait();
-                    }
-
-                    {
-
-                        if (deletemarkups)
-                        {
-                            _unitOfWorkMarkups.BeginTransactionAsync().Wait();
-                            markups.RemoveAll(x => x == null);
-                            repMarkups.Delete(markups);
-                            _unitOfWorkMarkups.SaveChangesAsync().Wait();
-                        }
-                    }
-                }
-                catch (System.Exception ex)
-                {
-
-                    _unitOfWorkPonto.
-
-
-                    _unitOfWorkPontoPair.RollbackTransactionAsync().Wait();
-
-
-                    _unitOfWorkMarkups.RollbackTransactionAsync().Wait();
-
-
-                    throw ex;
                 }
             });
 
-            switch (tipoProcessamento)
+            switch (processingType)
             {
-                case TiposProcessamento.Normal:
+                case ProcessingTypes.Normal:
 
                     expression = (x => (initialDate <= x.Data && x.Data <= finalDate)
                     && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))
                     && !x.Tratado);
                     break;
-                case TiposProcessamento.Recalcular:
+                case ProcessingTypes.Recalculate:
 
                     expression = (x => (initialDate <= x.Data && x.Data <= finalDate)
                     && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId)));
                     break;
-                case TiposProcessamento.Reanalizar:
+                case ProcessingTypes.Reanalyze:
                     expression = (x => (initialDate <= x.Data && x.Data <= finalDate)
                     && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId)));
 
@@ -126,9 +100,9 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                     break;
             }
 
-            ClearPontos.Start();
-            using(ClearPontos)
-                await ClearPontos;
+            clearEletronicPoints.Start();
+            using(clearEletronicPoints)
+                await clearEletronicPoints;
         }
     }
 }

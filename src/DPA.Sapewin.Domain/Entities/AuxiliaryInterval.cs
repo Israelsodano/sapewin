@@ -20,7 +20,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public AuxiliaryIntervalKind Kind { get; set; }
 
-        public Companie Empresa { get; set; }
+        public Company Empresa { get; set; }
 
         public Schedule Horarios { get; set; }
 

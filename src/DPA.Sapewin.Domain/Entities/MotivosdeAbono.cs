@@ -18,6 +18,6 @@ namespace DPA.Sapewin.Domain.Entities
 
         public bool Favorito { get; set; }
 
-        public Companie Empresa { get; set; }
+        public Company Empresa { get; set; }
     }
 }

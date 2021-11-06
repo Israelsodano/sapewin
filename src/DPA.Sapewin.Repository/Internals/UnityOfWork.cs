@@ -6,14 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace DPA.Sapewin.Repository.Internals.Event
 {
-    internal class UnityOfWork<TEntity> : IUnityOfWork<TEntity> where TEntity : Entity
+    internal class UnitOfWork<TEntity> : IUnitOfWork<TEntity> where TEntity : Entity
     {
         private readonly DbContext _context;
         private readonly ILogger _logger;
 
-        public UnityOfWork(DbContext context, 
+        public UnitOfWork(DbContext context, 
                            IRepository<TEntity> repository, 
-                           ILogger<UnityOfWork<TEntity>> logger)
+                           ILogger<UnitOfWork<TEntity>> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(context));

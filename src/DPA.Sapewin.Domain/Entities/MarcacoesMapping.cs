@@ -24,7 +24,7 @@ namespace DPA.Sapewin.Domain.Entities
             {
                 Nfr = obj.Nfr,
                 Nsr = obj.Nsr,
-                UniqueKey = obj.UniqueMarkingKey,
+                UniqueKey = obj.UniqueAppointmentKey,
                 DateTime = datetime,
             };
         }

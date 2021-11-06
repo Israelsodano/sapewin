@@ -15,7 +15,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public IList<PermissoesdeSetores> PermissoesdeSetores { get; set; }
 
-        public Companie Empresa { get; set; }
+        public Company Empresa { get; set; }
 
     }
 }

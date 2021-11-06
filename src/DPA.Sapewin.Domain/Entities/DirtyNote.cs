@@ -5,7 +5,7 @@ namespace DPA.Sapewin.Domain.Entities
 {
     public class DirtyNote : Entity
     {
-        public string UniqueMarkingKey { get; set; }
+        public string UniqueAppointmentKey { get; set; }
         public int Nsr { get; set; }
         public string Pis { get; set; }
         public DateTime Date { get; set; }
