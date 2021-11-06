@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
@@ -9,7 +10,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IAppointmentsService
     {
-        Task ImportDirtyNotes(IEnumerable<Employee> employees, 
+        Task<IEnumerable<Appointment>> ImportDirtyNotes(IEnumerable<Employee> employees, 
                                            DateTime initial, 
                                            DateTime final);
     }
@@ -26,7 +27,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             _unitOfWorkDirtyNote = unitOfWorkDirtyNote ?? throw new ArgumentNullException(nameof(unitOfWorkDirtyNote));
         }  
 
-        public async Task ImportDirtyNotes(IEnumerable<Employee> employees, 
+        public async Task<IEnumerable<Appointment>> ImportDirtyNotes(IEnumerable<Employee> employees, 
                                            DateTime initial, 
                                            DateTime final)
         {
@@ -38,16 +39,25 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             var appointments = _unitOfWorkAppointment.Repository
                                     .GetAll(x=> 
                                         employees.Any(y=> y.Id == x.EmployeeId) && 
-                                        x.Date >= initial && x.Date <= final).ToArray();
+                                        x.Date >= initial && x.Date <= final).ToList();
 
             dirtyNotes = (from d in dirtyNotes
                          where !appointments.Any(x=> x.UniqueAppointmentKey == d.UniqueAppointmentKey)
                          select d).ToArray();
 
             if (dirtyNotes.Any())
+            {
+                var ap = (from d in dirtyNotes select (Appointment)d)
+                        .ToArray();
+
                 await _unitOfWorkAppointment.Repository
-                        .InsertAsync((from d in dirtyNotes select (Appointment)d)
-                        .ToArray());
+                        .InsertAsync(ap);
+
+                await _unitOfWorkAppointment.SaveChangesAsync();
+                appointments.AddRange(ap);
+            }
+
+            return appointments;
         }
     }
 }

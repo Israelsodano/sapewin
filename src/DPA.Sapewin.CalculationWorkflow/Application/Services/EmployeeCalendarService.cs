@@ -93,7 +93,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                     .GetAll(x =>
                         employee.Scale.ScheduleScales
                         .Any(y => y.ScheduleId == x.Id && y.CompanyId == x.CompanyId))
-                    .Include(x => x.AuxiliaryIntervals).ToArray();
+                    .Include(x => x.AuxiliaryIntervals)
+                    .ToArray();
         }
         private IEnumerable<Leave> GetEmployeeLeavesFromRepository(Guid employeeId)
         {
