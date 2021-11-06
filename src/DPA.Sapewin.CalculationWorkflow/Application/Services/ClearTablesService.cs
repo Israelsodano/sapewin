@@ -7,102 +7,79 @@ using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models.Enums;
 using DPA.Sapewin.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface IClearTablesService 
+    public interface IClearTablesService
     {
-        Task Clear(DateTime initalDate, DateTime finalDate, IList<Employee> employeess, ProcessingTypes processingType);
+        Task Clear(DateTime startDate, DateTime endDate,
+            IEnumerable<Employee> employees, ProcessingTypes processingType);
     }
 
     public class ClearTablesService : IClearTablesService
     {
-        IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
-        IUnitOfWork<Markup> _unitOfWorkMarkups;
-        IUnitOfWork<EletronicPointPairs> _unitOfWorkEletronicPointPairs;
-
+        private readonly IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
+        private readonly IUnitOfWork<Appointment> _unitOfWorkAppointments;
+        private readonly IUnitOfWork<EletronicPointPairs> _unitOfWorkEletronicPointPairs;
+        private readonly ILogger _logger;
         public ClearTablesService(
-  
             IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint,
-            IUnitOfWork<Markup> unitOfWorkMarkups,
-            IUnitOfWork<EletronicPointPairs> unitOfWorkEletronicPointPairs)
+            IUnitOfWork<Appointment> unitOfWorkAppointments,
+            IUnitOfWork<EletronicPointPairs> unitOfWorkEletronicPointPairs,
+            ILogger<ClearTablesService> logger)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _unitOfWorkEletronicPoint = unitOfWorkEletronicPoint ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPoint));
-            _unitOfWorkMarkups = unitOfWorkMarkups ?? throw new ArgumentNullException(nameof(unitOfWorkMarkups));
+            _unitOfWorkAppointments = unitOfWorkAppointments ?? throw new ArgumentNullException(nameof(unitOfWorkAppointments));
             _unitOfWorkEletronicPointPairs = unitOfWorkEletronicPointPairs ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPointPairs));
         }
 
-        public async Task Clear(DateTime initialDate,
-            DateTime finalDate,
-            IList<Employee> employees,
-            ProcessingTypes processingType)
+        public async Task Clear(DateTime startDate, DateTime endDate,
+            IEnumerable<Employee> employees, ProcessingTypes processingType)
         {
-            Expression<Func<EletronicPoint, bool>> expression = null;
-            var deletemarkups = false;
+            var normalEletronicPointsList = GetNormalEletronicPoints(startDate, endDate, processingType, employees);
 
-            var clearEletronicPoints = new Task(() =>
+            var eletronicPointPairs = normalEletronicPointsList.SelectMany(x => x.Pairs).ToArray();
+            var appointments = eletronicPointPairs.Select(x => new { x.OriginalInput, x.OriginalOutput }).ToArray();
+
+            _unitOfWorkEletronicPointPairs.Repository.Delete(x => eletronicPointPairs.Any(y => y.Id == x.Id));
+            await _unitOfWorkEletronicPointPairs.SaveChangesAsync();
+
+            _unitOfWorkEletronicPoint.Repository.Delete(x => normalEletronicPointsList.Any(y => y.Id == x.Id));
+            await _unitOfWorkEletronicPoint.SaveChangesAsync();
+
+            if (processingType == ProcessingTypes.Recalculate)
             {
-                var normalEletronicPointsList = _unitOfWorkEletronicPoint.Repository.GetAll(expression)
-                    .Include(x => x.Pairs)
-                    .Include("Pares.EntradaOriginal")
-                    .Include("Pares.SaidaOriginal")
-                    .ToArray();
-               
-
-                var markups = new List<Markup>();
-                var eletronicPointPairs = new List<EletronicPointPairs>();
-
-                for (int i = 0; i < normalEletronicPointsList.Length; i++)
-                {
-                    if (normalEletronicPointsList[i].Pairs.Any())
-                    {
-                        eletronicPointPairs.AddRange(normalEletronicPointsList[i].Pairs);
-                        markups.AddRange(normalEletronicPointsList[i].Pairs.Select(x => x.OriginalInput));
-                        markups.AddRange(normalEletronicPointsList[i].Pairs.Select(x => x.OriginalOutput));
-                    }
-
-                    normalEletronicPointsList[i].Pairs = null;
-               
-                    _unitOfWorkEletronicPointPairs.Repository.Delete(x => eletronicPointPairs.Any(y => y.Id == x.Id));
-                    _unitOfWorkEletronicPointPairs.SaveChangesAsync();
-                
-
-                    _unitOfWorkEletronicPoint.Repository.Delete(x => normalEletronicPointsList.Any(y => y.Id == x.Id));
-                    _unitOfWorkEletronicPoint.SaveChangesAsync();
-                
-                    if (deletemarkups)
-                    {
-                        markups.RemoveAll(x => x == null);
-                        _unitOfWorkMarkups.Repository.Delete(x => markups.Exists(y => y.Id == x.Id));
-                        _unitOfWorkMarkups.SaveChangesAsync();
-                    }
-                }
-            });
-
-            switch (processingType)
-            {
-                case ProcessingTypes.Normal:
-
-                    expression = (x => (initialDate <= x.Data && x.Data <= finalDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))
-                    && !x.Tratado);
-                    break;
-                case ProcessingTypes.Recalculate:
-
-                    expression = (x => (initialDate <= x.Data && x.Data <= finalDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId)));
-                    break;
-                case ProcessingTypes.Reanalyze:
-                    expression = (x => (initialDate <= x.Data && x.Data <= finalDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId)));
-
-                    deletemarkups = true;
-                    break;
+                _unitOfWorkAppointments.Repository.Delete(x => 
+                    appointments.Any(y => y.OriginalInput.Id == x.Id || y.OriginalOutput.Id == x.Id));
+                await _unitOfWorkAppointments.SaveChangesAsync();
             }
-
-            clearEletronicPoints.Start();
-            using(clearEletronicPoints)
-                await clearEletronicPoints;
         }
+        private Expression<Func<EletronicPoint, bool>> ChooseExpression(DateTime startDate, DateTime endDate,
+            ProcessingTypes processingType, IEnumerable<Employee> employees) 
+        => processingType switch
+        {
+            ProcessingTypes.Normal => (x => (startDate <= x.Data && x.Data <= endDate)
+                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))
+                    && !x.Tratado),
+
+            ProcessingTypes.Recalculate => (x => (startDate <= x.Data && x.Data <= endDate)
+                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
+
+            ProcessingTypes.Reanalyze => (x => (startDate <= x.Data && x.Data <= endDate)
+                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
+
+            _ => throw new NotImplementedException()
+        };
+
+        private IEnumerable<EletronicPoint> GetNormalEletronicPoints(DateTime startDate, DateTime endDate,
+            ProcessingTypes processingType, IEnumerable<Employee> employees)
+        => _unitOfWorkEletronicPoint.Repository.GetAll(
+                ChooseExpression(startDate, endDate, processingType, employees))
+                .Include(x => x.Pairs)
+                .Include("Pairs.OriginalInput")
+                .Include("Pairs.OriginalOutput").ToArray();
     }
 }

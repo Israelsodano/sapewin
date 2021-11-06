@@ -30,9 +30,9 @@ namespace DPA.Sapewin.Domain.Entities
         public EletronicPoint EletronicPoint { get; set; }
 
         
-        public Markup OriginalInput { get; set; }
+        public Appointment OriginalInput { get; set; }
 
   
-        public Markup OriginalOutput { get; set; }
+        public Appointment OriginalOutput { get; set; }
     }
 }

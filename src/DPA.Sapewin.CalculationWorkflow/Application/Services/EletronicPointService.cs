@@ -46,14 +46,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                                          rschedules.refschedule, 
                                                          rschedules.pschedule);
 
-                var pappontments = (from a in appointments
+                var pappointments = (from a in appointments
                                    where a.Date >= rturns.pturn &&
                                          a.Date <= rturns.lturn                                         
                                    select a).ToArray();
                 
                 yield return new EletronicPoint
                 {
-                    Appointments = pappontments,
+                    Appointments = pappointments,
                     Schedule = rschedules.refschedule,
                     EmployeeId = employeeCalendars.Employee.Id,
                     Employee = employeeCalendars.Employee
@@ -111,7 +111,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         private (Schedule refschedule, Schedule pschedule, Schedule lschedule) GetReferencePreviousAndLaterSchedules(Calendar calendar, 
                                                                                                                    EmployeeCalendars employeeCalendars)
         {
-             Schedule refschedule = calendar.Schedule ?? employeeCalendars.GetNearestCalendarWithSchedule(calendar.Date).Schedule,
+            Schedule refschedule = calendar.Schedule ?? employeeCalendars.GetNearestCalendarWithSchedule(calendar.Date).Schedule,
                       pschedule = employeeCalendars.GetNearestCalendarWithSchedule(calendar.Date.AddDays(-1)).Schedule ?? 
                                         refschedule,
                       lschedule = employeeCalendars.GetNearestCalendarWithSchedule(calendar.Date.AddDays(1)).Schedule ?? 
