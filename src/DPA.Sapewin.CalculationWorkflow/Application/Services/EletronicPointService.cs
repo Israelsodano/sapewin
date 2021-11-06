@@ -20,14 +20,13 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                                                                                        IEnumerable<Appointment> appointments)
         {
             foreach (var employeeCalendars in employeesCalendars)
-            {
                 yield return new Grouping<Employee, EletronicPoint>(employeeCalendars.Employee, 
                             BuildEletronicPoints(employeeCalendars,
                                                 (from a in appointments
                                                 where a.EmployeeId == employeeCalendars.Employee.Id &&
                                                     a.CompanyId == employeeCalendars.Employee.CompanyId
                                                 select a).ToArray()));   
-            }
+            
         }
         
 
