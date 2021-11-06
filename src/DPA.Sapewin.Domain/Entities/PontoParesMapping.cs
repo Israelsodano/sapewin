@@ -29,7 +29,7 @@ namespace DPA.Sapewin.Domain.Entities
         public int Ordem { get; set; }
 
         [ForeignKey("IDPonto")]
-        public Ponto Ponto { get; set; }
+        public EletronicPoint Ponto { get; set; }
 
         [ForeignKey("IDEntradaOri")]
         public Appointment EntradaOriginal { get; set; }

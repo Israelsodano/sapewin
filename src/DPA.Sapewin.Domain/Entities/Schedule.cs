@@ -18,7 +18,7 @@ namespace DPA.Sapewin.Domain.Entities
         
         public Totals Totals { get; set; }
 
-        public int DayTurn { get; set; }
+        public int? DayTurn { get; set; }
 
         public bool DiscountInterval { get; set; }
 

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    [Table("ponto")]
-    public class Ponto
+    public class EletronicPoint : Entity
     {
-        public int IDPonto { get; set; }
-        public int IDFilaProcesso { get; set; }
         public Guid EmployeeId { get; set; }
         public Guid CompanyId { get; set; }
         public string DsrPago { get; set; }
@@ -46,10 +43,13 @@ namespace DPA.Sapewin.Domain.Entities
         public string ExtraAdicDesInter { get; set; }
         public string ReferenciaSemHorario { get; set; }
         public IEnumerable<PontoPares> Pares { get; set; }
+        public IEnumerable<Appointment> Appointments { get; set; }
+        public Schedule Schedule { get; set; }
+        public Employee Employee { get; set; }
 
-        public const string Folga = "Folga";
-        public const string Sabado = "Sabado";
-        public const string Domingo = "Domingo";
-        public const string Feriado = "Feriado";
+        public const string DayOff = "DayOff";
+        public const string Saturday = "Saturday";
+        public const string Sunday = "Sunday";
+        public const string Holiday = "Holiday";
     }
 }
