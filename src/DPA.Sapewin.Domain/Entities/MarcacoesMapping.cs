@@ -1,34 +1,31 @@
+using DPA.Sapewin.Repository;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    [Table("marcacoes")]
-    public class Marcacoes
+    public class Markup : Entity
     {
-        public int? IDMarcacao { get; set; }
+        public string Nfr { get; set; }
 
-        public string nfr { get; set; }
+        public int Nsr { get; set; }
 
-        public int nsr { get; set; }
-
-        public string chaveUniqueMarc { get; set; }
+        public string UniqueKey { get; set; }
 
         public Guid EmployeeId { get; set; }
 
         public Guid CompanyId { get; set; }
 
-        public DateTime datahora { get; set; }
+        public DateTime DateTime { get; set; }
 
-        public static implicit operator Marcacoes(DirtyNote obj){
-            DateTime datahora = Convert.ToDateTime(obj.Date.ToShortDateString() + " " + obj.Hour);
+        public static implicit operator Markup(DirtyNote obj){
+            DateTime datetime = Convert.ToDateTime(obj.Date.ToShortDateString() + " " + obj.Hour);
 
-            return obj == null ? null : new Marcacoes
+            return obj == null ? null : new Markup
             {
-                nfr = obj.Nfr,
-                nsr = obj.Nsr,
-                chaveUniqueMarc = obj.UniqueMarkingKey,
-                datahora = datahora,
+                Nfr = obj.Nfr,
+                Nsr = obj.Nsr,
+                UniqueKey = obj.UniqueMarkingKey,
+                DateTime = datetime,
             };
         }
     }
