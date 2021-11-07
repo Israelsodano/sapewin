@@ -6,9 +6,9 @@ namespace DPA.Sapewin.Domain.Entities
     {
         public int Entry { get; set; }
 
-        public int IntervalIn { get; set; }
+        public int? IntervalIn { get; set; }
 
-        public int IntervalOut { get; set; }
+        public int? IntervalOut { get; set; }
 
         public int WayOut { get; set; }
     }

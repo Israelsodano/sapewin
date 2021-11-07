@@ -16,9 +16,9 @@ namespace DPA.Sapewin.Domain.Entities
 
         public DateTime? DataHoraSaida { get; set; }
 
-        public int? IDEntradaOri { get; set; }
+        public Guid? EntryAppointmentId { get; set; }
 
-        public int? IDSaidaOri { get; set; }
+        public Guid? WayOutAppointmentId { get; set; }
 
         public string AbrMotivoAbonoEnt { get; set; }
 
@@ -30,9 +30,9 @@ namespace DPA.Sapewin.Domain.Entities
         public EletronicPoint EletronicPoint { get; set; }
 
         
-        public Appointment OriginalInput { get; set; }
+        public Appointment OriginalEntry { get; set; }
 
   
-        public Appointment OriginalOutput { get; set; }
+        public Appointment OriginalWayOut { get; set; }
     }
 }

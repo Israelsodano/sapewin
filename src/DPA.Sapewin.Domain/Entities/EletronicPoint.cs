@@ -17,7 +17,7 @@ namespace DPA.Sapewin.Domain.Entities
         public string DesExtrapPer1 { get; set; }
         public string DesExtrapPer2 { get; set; }
         public int? IDHorario { get; set; }
-        public DateTime Data { get; set; }
+        public DateTime Date { get; set; }
         public bool Tratado { get; set; }
         public string HoraPagPer1 { get; set; }
         public string HoraPagPer2 { get; set; }

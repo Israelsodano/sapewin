@@ -42,7 +42,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             var normalEletronicPointsList = GetNormalEletronicPoints(startDate, endDate, processingType, employees);
 
             var eletronicPointPairs = normalEletronicPointsList.SelectMany(x => x.Pairs).ToArray();
-            var appointments = eletronicPointPairs.Select(x => new { x.OriginalInput, x.OriginalOutput }).ToArray();
+            var appointments = eletronicPointPairs.Select(x => new { x.OriginalEntry, x.OriginalWayOut }).ToArray();
 
             _unitOfWorkEletronicPointPairs.Repository.Delete(x => eletronicPointPairs.Any(y => y.Id == x.Id));
             await _unitOfWorkEletronicPointPairs.SaveChangesAsync();
@@ -53,7 +53,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             if (processingType == ProcessingTypes.Recalculate)
             {
                 _unitOfWorkAppointments.Repository.Delete(x => 
-                    appointments.Any(y => y.OriginalInput.Id == x.Id || y.OriginalOutput.Id == x.Id));
+                    appointments.Any(y => y.OriginalEntry.Id == x.Id || y.OriginalWayOut.Id == x.Id));
                 await _unitOfWorkAppointments.SaveChangesAsync();
             }
         }
@@ -61,14 +61,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             ProcessingTypes processingType, IEnumerable<Employee> employees) 
         => processingType switch
         {
-            ProcessingTypes.Normal => (x => (startDate <= x.Data && x.Data <= endDate)
+            ProcessingTypes.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))
                     && !x.Tratado),
 
-            ProcessingTypes.Recalculate => (x => (startDate <= x.Data && x.Data <= endDate)
+            ProcessingTypes.Recalculate => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
 
-            ProcessingTypes.Reanalyze => (x => (startDate <= x.Data && x.Data <= endDate)
+            ProcessingTypes.Reanalyze => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
 
             _ => throw new NotImplementedException()
