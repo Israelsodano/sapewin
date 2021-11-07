@@ -328,8 +328,8 @@ namespace GI.ControlePonto.Business
                 marcacaoEntradaIntervalo = await PegaMarcacao(horarioDataHora, marcacoes.Where(x=> !marcacoesUsadas.Any(y=> y.datahora == x.datahora)).ToArray(), horario.EntradaIntervalo, true, horasMarcacoes);
 
                 marcacaoEntradaIntervalo = funcionario.Intervalo == Funcionarios.intervalo.Pre_Assinalado ? 
-                                            marcacaoEntradaIntervalo == null ?
-                                            new Marcacoes { IDEmpresa = ponto.IDEmpresa, IDFuncionario = funcionario.IDFuncionario, datahora = Calculadora.HoraEmDateTime(horario.EntradaIntervalo, ponto.Data.AddDays(VerificaOutroDia(horario.Entrada, horario.EntradaIntervalo) ? 1 : 0)) }
+                                                marcacaoEntradaIntervalo == null ?
+                                                new Marcacoes { IDEmpresa = ponto.IDEmpresa, IDFuncionario = funcionario.IDFuncionario, datahora = Calculadora.HoraEmDateTime(horario.EntradaIntervalo, ponto.Data.AddDays(VerificaOutroDia(horario.Entrada, horario.EntradaIntervalo) ? 1 : 0)) }
                                             : marcacaoEntradaIntervalo
                                             : marcacaoEntradaIntervalo;
 

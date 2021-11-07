@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IEmployeeCalendarService
     {
-        IEnumerable<EmployeeCalendars> BuildEmployeeCalendars(IEnumerable<Employee> employees, DateTime startDate,
+        IAsyncEnumerable<EmployeeCalendars> BuildEmployeeCalendars(IEnumerable<Employee> employees, DateTime startDate,
             DateTime endDate, IEnumerable<GenericHoliday> genericHolidays);
     }
 
@@ -27,7 +28,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             _scheduleUnit = scheduleUnit ?? throw new ArgumentNullException(nameof(scheduleUnit));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-        public IEnumerable<EmployeeCalendars> BuildEmployeeCalendars(IEnumerable<Employee> employees, DateTime startDate,
+        public async IAsyncEnumerable<EmployeeCalendars> BuildEmployeeCalendars(IEnumerable<Employee> employees, DateTime startDate,
             DateTime endDate, IEnumerable<GenericHoliday> genericHolidays)
         {
             startDate = startDate.AddDays(-10);
@@ -35,8 +36,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
             foreach (var employee in employees)
             {
-                var schedules = GetSchedulesFromRepository(employee);
-                var employeeLeaves = GetEmployeeLeavesFromRepository(employee.Id);
+                var schedules = await GetSchedulesFromRepository(employee).ToArrayAsync();
+                var employeeLeaves = await GetEmployeeLeavesFromRepository(employee.Id).ToArrayAsync();
                 var employeeCalendars = EmployeeCalendars.Build(employee);
 
                 while (startDate <= endDate)
@@ -86,7 +87,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             }
             return result;
         }
-        private IEnumerable<Schedule> GetSchedulesFromRepository(Employee employee)
+        private IAsyncEnumerable<Schedule> GetSchedulesFromRepository(Employee employee)
         {
             _logger.LogInformation($"Getting schedules for employee ID: {employee.Id}");
             return _scheduleUnit.Repository
@@ -94,13 +95,15 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                         employee.Scale.ScheduleScales
                         .Any(y => y.ScheduleId == x.Id && y.CompanyId == x.CompanyId))
                     .Include(x => x.AuxiliaryIntervals)
-                    .ToArray();
+                    .AsAsyncEnumerable();
         }
-        private IEnumerable<Leave> GetEmployeeLeavesFromRepository(Guid employeeId)
+
+        private IAsyncEnumerable<Leave> GetEmployeeLeavesFromRepository(Guid employeeId)
         {
             _logger.LogInformation($"Getting employeeLeaves for employee ID: {employeeId}");
-            return _leavesUnit.Repository.GetAll(x => x.EmployeeId == employeeId).ToArray();
+            return _leavesUnit.Repository.GetAll(x => x.EmployeeId == employeeId).AsAsyncEnumerable();
         }
+
         private static void HandleSchedule(Leave leave, IEnumerable<Schedule> schedules, ScheduleScales dayScale, ref Schedule schedule)
             => schedule = leave is not null
                 ? null : schedule is not null

@@ -10,26 +10,41 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IEletronicPointService
     {
-        IEnumerable<IGrouping<Employee, EletronicPoint>> GetAggregatedEletronicPointsByEmployee(IEnumerable<EmployeeCalendars> employeesCalendars,
-                                                                                                IEnumerable<Appointment> appointments);
+        IAsyncEnumerable<IGrouping<Employee, EletronicPoint>> GetAggregatedEletronicPointsByEmployee(IEnumerable<EmployeeCalendars> employeesCalendars,
+                                                                                                     IEnumerable<Appointment> appointments);
     }
 
     public class EletronicPointService : IEletronicPointService
     {
-        public IEnumerable<IGrouping<Employee, EletronicPoint>> GetAggregatedEletronicPointsByEmployee(IEnumerable<EmployeeCalendars> employeesCalendars,
+        private readonly IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
+        
+
+        public EletronicPointService(IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint)
+        {
+            _unitOfWorkEletronicPoint = unitOfWorkEletronicPoint ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPoint));
+        }
+
+        public async IAsyncEnumerable<IGrouping<Employee, EletronicPoint>> GetAggregatedEletronicPointsByEmployee(IEnumerable<EmployeeCalendars> employeesCalendars,
                                                                                                        IEnumerable<Appointment> appointments)
         {
             foreach (var employeeCalendars in employeesCalendars)
-                yield return new Grouping<Employee, EletronicPoint>(employeeCalendars.Employee, 
-                            BuildEletronicPoints(employeeCalendars,
+            {
+                var eeletronicPoints = BuildEletronicPoints(employeeCalendars,
                                                 (from a in appointments
                                                 where a.EmployeeId == employeeCalendars.Employee.Id &&
                                                     a.CompanyId == employeeCalendars.Employee.CompanyId
-                                                select a).ToArray()));   
-            
+                                                select a).ToArray())
+                                                .ToArray();
+                
+                await _unitOfWorkEletronicPoint.Repository.InsertAsync(eeletronicPoints);
+                await _unitOfWorkEletronicPoint.SaveChangesAsync();
+
+                yield return new Grouping<Employee, EletronicPoint>(employeeCalendars.Employee,
+                                                                    eeletronicPoints);   
+
+            }   
         }
         
-
         private IEnumerable<EletronicPoint> BuildEletronicPoints(EmployeeCalendars employeeCalendars, 
                                                                  IEnumerable<Appointment> appointments)
         {
@@ -53,6 +68,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                 
                 yield return new EletronicPoint
                 {
+                    Date = calendar.Date.Date,
                     Appointments = pappointments,
                     Schedule = rschedules.refschedule,
                     EmployeeId = employeeCalendars.Employee.Id,
