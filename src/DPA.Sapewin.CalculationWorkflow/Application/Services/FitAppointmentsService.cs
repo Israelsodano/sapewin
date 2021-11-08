@@ -10,7 +10,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
     }
     public class FitAppointmentsService : IFitAppointmentsService
     {
-        private IList<HelperPares> FitAppointmentsLoad(IList<Appointment> appointments, Schedule schedule,
+        private IList<EletronicPointPairs> FitAppointmentsLoad(IList<Appointment> appointments, Schedule schedule,
             EletronicPoint eletronicPoint, Employee employee)
         {
             appointments = appointments.OrderBy(x => x.Date).ToList();
