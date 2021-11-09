@@ -377,23 +377,25 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         {
             foreach (var employee in eletronicPointsByEmployee)
                 foreach (var point in employee)
-                    yield return new Grouping<Employee, EletronicPointPairs>(employee.Key, await SnapEmployeeAppointmentsLoad(point));
+                {
+                    var pairs = SnapEmployeeAppointmentsLoad(point);
+
+                    await _unitOfWorkEletronicPointPairs.Repository.InsertAsync(pairs);
+                    await _unitOfWorkEletronicPointPairs.SaveChangesAsync();
+
+                    yield return new Grouping<Employee, EletronicPointPairs>(employee.Key, pairs);
+                }
         }
-        private async Task<IEnumerable<EletronicPointPairs>> SnapEmployeeAppointmentsLoad(EletronicPoint point)
+        private IEnumerable<EletronicPointPairs> SnapEmployeeAppointmentsLoad(EletronicPoint point)
         {
             var appointments = point.Appointments.OrderBy(x => x.Date).ToList();
-            var result = new List<EletronicPointPairs>();
-                for (var i = 0; i < appointments.Count; i += 2)
-                {
-                    result.Add(i == appointments.Count - 1 
-                    ? EnlaceEletronicPointPairsLoad(appointments[i], null, point) 
-                    : EnlaceEletronicPointPairsLoad(appointments[i], appointments[i + 1], point));
-                }
-
-            await _unitOfWorkEletronicPointPairs.Repository.InsertAsync(result);
-            await _unitOfWorkEletronicPointPairs.SaveChangesAsync();
-            return result;
+            for (var i = 0; i < appointments.Count; i += 2)
+                yield return EnlaceEletronicPointPairsLoad(appointments[i], i == appointments.Count - 1 ? 
+                                                                    null : 
+                                                                    appointments[i + 1], 
+                                                            point);
         }
+
         private EletronicPointPairs EnlaceEletronicPointPairsLoad(Appointment a1, Appointment a2, EletronicPoint ePoint)
         => HandleAppointments(new EletronicPointPairs {
                 EmployeeId = ePoint.EmployeeId,
@@ -401,6 +403,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                 EletronicPointId = ePoint.Id,
                 EletronicPoint = ePoint,
             }, a1, a2);
+            
         private void HandleBothAppointmentsNotNull(ref EletronicPointPairs result, Appointment[] appointments)
         {
             result.OriginalEntry = appointments[0];
@@ -408,12 +411,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             result.OriginalWayOut = appointments[1];
             result.WayOutAppointmentId = appointments[1].Id;
         }
+
         private void HandleNullAppointment(ref EletronicPointPairs result, Appointment[] appointments)
         {
             var owayout = appointments.FirstOrDefault(x => x is not null);
             result.OriginalWayOut = owayout;
             result.WayOutAppointmentId = owayout.Id;
         }
+
         private EletronicPointPairs HandleAppointments(EletronicPointPairs result, Appointment a1, Appointment a2)
         {
             var appointments =  new Appointment[] { a1, a2 }.OrderBy(x => x?.Date).ToArray();
