@@ -39,6 +39,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         public async Task Clear(DateTime startDate, DateTime endDate,
             IEnumerable<Employee> employees, ProcessingTypes processingType)
         {
+            _logger.LogInformation("Getting normal eletronic points");
             var normalEletronicPointsList = GetNormalEletronicPoints(startDate, endDate, processingType, employees);
 
             var eletronicPointPairs = normalEletronicPointsList.SelectMany(x => x.Pairs).ToArray();
@@ -46,15 +47,19 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
             _unitOfWorkEletronicPointPairs.Repository.Delete(x => eletronicPointPairs.Any(y => y.Id == x.Id));
             await _unitOfWorkEletronicPointPairs.SaveChangesAsync();
+            _logger.LogInformation("Deleted eletronic point pairs");
 
             _unitOfWorkEletronicPoint.Repository.Delete(x => normalEletronicPointsList.Any(y => y.Id == x.Id));
             await _unitOfWorkEletronicPoint.SaveChangesAsync();
+            _logger.LogInformation("Deleted eletronic points");
 
             if (processingType == ProcessingTypes.Recalculate)
             {
                 _unitOfWorkAppointments.Repository.Delete(x => 
                     appointments.Any(y => y.OriginalEntry.Id == x.Id || y.OriginalWayOut.Id == x.Id));
                 await _unitOfWorkAppointments.SaveChangesAsync();
+                _logger.LogInformation("Deleted appointments");
+
             }
         }
         private Expression<Func<EletronicPoint, bool>> ChooseExpression(DateTime startDate, DateTime endDate,
