@@ -32,28 +32,46 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             var appointments = (from p in pairs.SelectMany(x=> x.GetAppointments()) 
                                where p is not null
                                select p).ToList();  
-                               
-            var eappointments = GetAllEntryApointmentsBasedInEletronicPont(eletronicPoint).ToArray();
 
-            var app = from ea in eappointments  
-                      select _appointmentsService.GetBestAppointment(ea, ref appointments, 
-                                                                     true, eappointments);
+            var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(eletronicPoint);
+                               
+            var eintervals = GetAllEntryApointmentsBasedInEletronicPont(eletronicPoint, 
+                                                                        rappointments.eappointment).ToArray();
+
+            var eappointments = from ea in eintervals  
+                      select new { bappointment = _appointmentsService.GetBestAppointment(ea, 
+                                                                     ref appointments, 
+                                                                     true, 
+                                                                     eintervals), 
+                                                                     rappointment = ea };
+
+            var fpappointments = from a in eappointments
+                            where a.rappointment.Date <= rappointments.iiapointment.Date
+                            select a;
+
+            
+            var fparrear = (from df in (from f in fpappointments
+                                                select (f.rappointment.Date - f.bappointment.Date).TotalMinutes)
+                            select df > 0 ? df : 0).Sum();
+            
+            
+
+
         }
 
-        private IEnumerable<DateTime> GetAllEntryApointmentsBasedInEletronicPont(EletronicPoint eletronicPoint)
+        private IEnumerable<DateTime> GetAllEntryApointmentsBasedInEletronicPont(EletronicPoint eletronicPoint, 
+                                                                                 DateTime eappointment)
         {
-            var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(eletronicPoint);
-
             var ax = (from aux in eletronicPoint.Schedule.AuxiliaryIntervals ?? new AuxiliaryInterval[] { }
                                 where aux.DiscountInterval && aux.Kind == AuxiliaryIntervalKind.Fixed
                                 select 
                                 eletronicPoint.Date.AddMinutes(aux.Entry)
                                         .AddDays(_appointmentsService
-                                                    .GetOnlyMinutesFromDateTime(rappointments.eappointment) > aux.Entry ? 
+                                                    .GetOnlyMinutesFromDateTime(eappointment) > aux.Entry ? 
                                                         1 : 0 
                                         )).ToList();
             
-            ax.Add(rappointments.eappointment);
+            ax.Add(eappointment);
 
             return ax;
         }
