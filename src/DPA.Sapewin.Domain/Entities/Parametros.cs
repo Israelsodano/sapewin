@@ -14,11 +14,11 @@ namespace DPA.Sapewin.Domain.Entities
 
         public Tipodeatraso? TipodeAtraso { get; set; }
 
-        public string AtrasoTotal1P { get; set; }
+        public int ArrearToleratedInFirstPeriod { get; set; }
 
-        public string AtrasoTotal2P { get; set; }
+        public int ArrearToleratedInSecondPeriod { get; set; }
 
-        public string AtrasoJornada { get; set; }
+        public int ArrearJourney { get; set; }
 
         public Tipodesaida? TipodeSaida { get; set; }
 

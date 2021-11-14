@@ -15,7 +15,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public Guid CompanyId { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime DateHour { get; set; }
 
         public static implicit operator Appointment(DirtyNote obj){
             DateTime d = Convert.ToDateTime(obj.Date.ToShortDateString() + " " + obj.Hour);
@@ -25,7 +25,7 @@ namespace DPA.Sapewin.Domain.Entities
                 Nfr = obj.Nfr,
                 Nsr = obj.Nsr,
                 UniqueAppointmentKey = obj.UniqueAppointmentKey,
-                Date = d,
+                DateHour = d,
             };
         }
     }

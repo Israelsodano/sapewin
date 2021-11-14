@@ -1,12 +1,11 @@
 using System.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using DPA.Sapewin.Domain.Entities;
 
 namespace DPA.Sapewin.Domain.Models
 {
-    public class EmployeeCalendars
+    public struct EmployeeCalendars
     {
         public Employee Employee { get; set;}
         public IEnumerable<Calendar> Calendars { get; set; }
