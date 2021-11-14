@@ -62,8 +62,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                                          rschedules.pschedule);
 
                 var pappointments = (from a in appointments
-                                   where a.Date >= rturns.pturn &&
-                                         a.Date <= rturns.lturn                                         
+                                   where a.DateHour >= rturns.pturn &&
+                                         a.DateHour <= rturns.lturn                                         
                                    select a).ToArray();
                 
                 yield return new EletronicPoint

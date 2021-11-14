@@ -16,6 +16,21 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         Task<IEnumerable<Appointment>> ImportDirtyNotes(IEnumerable<Employee> employees,
                                            DateTime initial,
                                            DateTime final);
+
+        Appointment GetBestAppointment(DateTime refappointment, 
+                                               ref List<Appointment> appointments, 
+                                               bool verifyBestDateToo, 
+                                               params DateTime[] rappointments);
+
+        int GetOnlyMinutesFromDateTime(DateTime? date);
+
+
+        (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) 
+                GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint);
+
+
+        IAsyncEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> 
+                SnapEmployeesAppointments(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployee);
     }
 
     public class AppointmentsService : IAppointmentsService
@@ -33,12 +48,12 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             _unitOfWorkDirtyNote = unitOfWorkDirtyNote ?? throw new ArgumentNullException(nameof(unitOfWorkDirtyNote));
         }
 
-        public async IAsyncEnumerable<IGrouping<Employee, EletronicPointPairs>> SnapEmployeesAppointments(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployee)
+        public async IAsyncEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> SnapEmployeesAppointments(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployee)
         {
             foreach (var eletronicPointsOfEmployee in eletronicPointsByEmployee)
                 foreach (var eletronicPoint in eletronicPointsOfEmployee)
-                    yield return new Grouping<Employee, EletronicPointPairs>(eletronicPointsOfEmployee.Key,
-                                                                             await SnapEmployeeAppointments(eletronicPoint));
+                    yield return new Grouping<EletronicPoint, EletronicPointPairs>(eletronicPoint, 
+                                                                                    await SnapEmployeeAppointments(eletronicPoint));
         }
 
         private async Task<IEnumerable<EletronicPointPairs>> SnapEmployeeAppointments(EletronicPoint eletronicPoint)
@@ -103,7 +118,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                         select new
                         {
                             Target = e,
-                            Difference = Math.Abs(((e.OriginalEntry ?? e.OriginalWayOut).Date - appointment.Date).Ticks)
+                            Difference = Math.Abs(((e.OriginalEntry ?? e.OriginalWayOut).DateHour - appointment.DateHour).Ticks)
                         })
              orderby d.Difference
              select d.Target).FirstOrDefault();
@@ -114,7 +129,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             var appointments = (from a in new[] { appointment,
                                                     eletronicPointPairs.OriginalEntry,
                                                     eletronicPointPairs.OriginalWayOut }
-                                orderby a?.Date
+                                orderby a?.DateHour
                                 select a).ToArray();
 
             eletronicPointPairs.OriginalEntry = appointments[0];
@@ -132,18 +147,18 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         private bool VerifyIfIsBetweenCurrentAppointments(EletronicPointPairs eletronicPointPairs, Appointment appointment) =>
             (eletronicPointPairs.OriginalEntry is null ||
             eletronicPointPairs.OriginalWayOut is null) ||
-            eletronicPointPairs.OriginalEntry.Date <= appointment.Date &&
-            eletronicPointPairs.OriginalWayOut.Date >= appointment.Date;
+            eletronicPointPairs.OriginalEntry.DateHour <= appointment.DateHour &&
+            eletronicPointPairs.OriginalWayOut.DateHour >= appointment.DateHour;
 
         private IEnumerable<EletronicPointPairs> BuildEletronicPointPairs((Appointment eappointment,
-                                                                           Appointment iiapointment,
+                                                                           Appointment iiappointment,
                                                                            Appointment ioappointment,
                                                                            Appointment wappointment) rappointments,
                                                                            EletronicPoint eletronicPoint) =>
-            rappointments.iiapointment is not null ||
+            rappointments.iiappointment is not null ||
             rappointments.ioappointment is not null ?
                 new[] { EnlaceAppointments(rappointments.eappointment,
-                                            rappointments.iiapointment,
+                                            rappointments.iiappointment,
                                             eletronicPoint),
                          EnlaceAppointments(rappointments.ioappointment,
                                             rappointments.wappointment,
@@ -162,11 +177,11 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                 EmployeeId = eletronicPoint.EmployeeId,
                 CompanyId = eletronicPoint.CompanyId,
                 EletronicPointId = eletronicPoint.Id,
-                EletronicPoint = eletronicPoint
+                EletronicPoint = eletronicPoint,
             };
 
             var appointments = (from a in new[] { a1, a2 }
-                                orderby a?.Date
+                                orderby a?.DateHour
                                 select a).ToArray();
 
             if (appointments.Any(x => x is null))
@@ -188,7 +203,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                                   Appointment[] appointments)
         {
             var nnappointment = appointments.FirstOrDefault(x => x is not null);
-            var mappointment = GetOnlyMinutesFromDateTime(nnappointment.Date);
+            var mappointment = GetOnlyMinutesFromDateTime(nnappointment.DateHour);
 
             if (Math.Abs(mappointment - eletronicPoint.Schedule.Period.Entry) <
                 Math.Abs(mappointment - eletronicPoint.Schedule.Period.WayOut))
@@ -205,10 +220,10 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             return eletronicPointPairs;
         }
 
-        private int GetOnlyMinutesFromDateTime(DateTime? date) => !date.HasValue ? 0 : (date.Value.Hour * 60) + date.Value.Minute;
+        public int GetOnlyMinutesFromDateTime(DateTime? date) => !date.HasValue ? 0 : (date.Value.Hour * 60) + date.Value.Minute;
 
         private Appointment GetWayOutAppointment((DateTime eappointment,
-                                                                DateTime iiapointment,
+                                                                DateTime iiappointment,
                                                                 DateTime ioappointment,
                                                                 DateTime wappointment) rappointments,
                                                                 ref List<Appointment> appointments) =>
@@ -216,10 +231,13 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             GetBestAppointment(rappointments.wappointment,
                                 ref appointments,
                                 false,
-                                rappointments);
+                                rappointments.eappointment,
+                                rappointments.iiappointment,
+                                rappointments.ioappointment,
+                                rappointments.wappointment);
 
         private Appointment GetIntervalInAppointment((DateTime eappointment,
-                                                    DateTime iiapointment,
+                                                    DateTime iiappointment,
                                                     DateTime ioappointment,
                                                     DateTime wappointment) rappointments,
                                                     EletronicPoint eletronicPoint,
@@ -227,17 +245,20 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         {
             if (!eletronicPoint.Schedule.Period.IntervalIn.HasValue) return null;
 
-            var iiappointment = GetBestAppointment(rappointments.iiapointment,
+            var iiappointment = GetBestAppointment(rappointments.iiappointment,
                                                   ref appointments,
                                                   true,
-                                                  rappointments);
+                                                  rappointments.eappointment,
+                                                    rappointments.iiappointment,
+                                                    rappointments.ioappointment,
+                                                    rappointments.wappointment);
 
             if (iiappointment is null && eletronicPoint.Employee.Interval == EmployeeInterval.PreAssigned)
                 iiappointment = new Appointment
                 {
                     CompanyId = eletronicPoint.Employee.CompanyId,
                     EmployeeId = eletronicPoint.EmployeeId,
-                    Date = eletronicPoint.Date
+                    DateHour = eletronicPoint.Date
                             .AddMinutes(eletronicPoint.Schedule.Period.IntervalIn.Value)
                             .AddDays(eletronicPoint.Schedule.Period.IntervalIn.Value < eletronicPoint.Schedule.Period.Entry ? 1 : 0)
                 };
@@ -246,7 +267,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
 
         private Appointment GetIntervalOutAppointment((DateTime eappointment,
-                                                    DateTime iiapointment,
+                                                    DateTime iiappointment,
                                                     DateTime ioappointment,
                                                     DateTime wappointment) rappointments,
                                                     EletronicPoint eletronicPoint,
@@ -257,14 +278,17 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             var ioappointment = GetBestAppointment(rappointments.ioappointment,
                                                   ref appointments,
                                                   true,
-                                                  rappointments);
+                                                  rappointments.eappointment,
+                                                    rappointments.iiappointment,
+                                                    rappointments.ioappointment,
+                                                    rappointments.wappointment);
 
             if (ioappointment is null && eletronicPoint.Employee.Interval == EmployeeInterval.PreAssigned)
                 ioappointment = new Appointment
                 {
                     CompanyId = eletronicPoint.Employee.CompanyId,
                     EmployeeId = eletronicPoint.EmployeeId,
-                    Date = eletronicPoint.Date
+                    DateHour = eletronicPoint.Date
                             .AddMinutes(eletronicPoint.Schedule.Period.IntervalOut.Value)
                             .AddDays(eletronicPoint.Schedule.Period.IntervalOut.Value < eletronicPoint.Schedule.Period.Entry ? 1 : 0)
                 };
@@ -273,7 +297,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
 
         private Appointment GetEntryAppointment((DateTime eappointment,
-                                                                DateTime iiapointment,
+                                                                DateTime iiappointment,
                                                                 DateTime ioappointment,
                                                                 DateTime wappointment) rappointments,
                                                                 ref List<Appointment> appointments) =>
@@ -281,23 +305,19 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             GetBestAppointment(rappointments.eappointment,
                                 ref appointments,
                                 false,
-                                rappointments);
-
-
-        private Appointment GetBestAppointment(DateTime refappointment,
-                                               ref List<Appointment> appointments,
-                                               bool verifyBestDateToo,
-                                               (DateTime eappointment,
-                                               DateTime iiapointment,
-                                               DateTime ioappointment,
-                                               DateTime wappointment) rappointments)
+                                rappointments.eappointment,
+                                rappointments.iiappointment,
+                                rappointments.ioappointment,
+                                rappointments.wappointment);
+                                        
+        public Appointment GetBestAppointment(DateTime refappointment, 
+                                               ref List<Appointment> appointments, 
+                                               bool verifyBestDateToo, 
+                                               params DateTime[] rappointments)
         {
             var bappointment = GetBestAppointmentByDateTime(refappointment, appointments);
-            var bdate = GetBestDateByAppointment(bappointment,
-                                                 rappointments.eappointment,
-                                                 rappointments.iiapointment,
-                                                 rappointments.ioappointment,
-                                                 rappointments.wappointment);
+            var bdate = GetBestDateByAppointment(bappointment, 
+                                                 rappointments);
 
             var r = !verifyBestDateToo ?
                         bappointment :
@@ -315,7 +335,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                        select new
                        {
                            Target = dt,
-                           Difference = Math.Abs((dt - appointment.Date).Ticks)
+                           Difference = Math.Abs((dt - appointment.DateHour).Ticks)
                        })
             orderby d.Difference
             select d.Target).FirstOrDefault();
@@ -325,24 +345,39 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                         select new
                         {
                             Target = a,
-                            Difference = Math.Abs((a.Date - refappointment.Date).Ticks)
+                            Difference = Math.Abs((a.DateHour - refappointment.Date).Ticks)
                         })
              orderby d.Difference
              select d.Target).FirstOrDefault();
 
 
-        private (DateTime eappointment, DateTime iiapointment, DateTime ioappointment, DateTime wappointment) GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint)
+        public (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint)
         {
             DateTime eappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.Entry),
-                     iiapointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.IntervalIn ?? 0),
-                     ioappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.IntervalOut ?? 0),
-                     wappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.WayOut);
+                     iiappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.IntervalIn ?? 0)
+                                                        .AddDays(eletronicPoint.Schedule.Period.IntervalIn.HasValue ? 
+                                                                    GetDayCompensation(eletronicPoint.Schedule.Period.Entry, 
+                                                                                       eletronicPoint.Schedule.Period.IntervalIn.Value) : 
+                                                                    0),
 
-            return (eappointment, iiapointment, ioappointment, wappointment);
+                     ioappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.IntervalOut ?? 0)
+                                                        .AddDays(eletronicPoint.Schedule.Period.IntervalIn.HasValue ? 
+                                                                    GetDayCompensation(eletronicPoint.Schedule.Period.IntervalIn.Value, 
+                                                                                       eletronicPoint.Schedule.Period.IntervalOut.Value) : 
+                                                                    0),
+                     wappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.WayOut)
+                                                        .AddDays(eletronicPoint.Schedule.Period.IntervalIn.HasValue ? 
+                                                                    GetDayCompensation(eletronicPoint.Schedule.Period.IntervalOut.Value, 
+                                                                                       eletronicPoint.Schedule.Period.WayOut) : 
+                                                                    0);
+
+            return (eappointment, iiappointment, ioappointment, wappointment);
         }
 
-        public async Task<IEnumerable<Appointment>> ImportDirtyNotes(IEnumerable<Employee> employees,
-                                           DateTime initial,
+        public int GetDayCompensation(int entry, int wayOut) => wayOut <= entry ? 1 : 0;
+
+        public async Task<IEnumerable<Appointment>> ImportDirtyNotes(IEnumerable<Employee> employees, 
+                                           DateTime initial, 
                                            DateTime final)
         {
             var dirtyNotes = _unitOfWorkDirtyNote.Repository
@@ -353,7 +388,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             var appointments = _unitOfWorkAppointment.Repository
                                     .GetAll(x =>
                                         employees.Any(y => y.Id == x.EmployeeId) &&
-                                        x.Date >= initial && x.Date <= final).ToList();
+                                        x.DateHour >= initial && x.DateHour <= final).ToList();
 
             dirtyNotes = (from d in dirtyNotes
                           where !appointments.Any(x => x.UniqueAppointmentKey == d.UniqueAppointmentKey)
@@ -388,7 +423,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
         private IEnumerable<EletronicPointPairs> SnapEmployeeAppointmentsLoad(EletronicPoint point)
         {
-            var appointments = point.Appointments.OrderBy(x => x.Date).ToList();
+            var appointments = point.Appointments.OrderBy(x => x.DateHour).ToList();
             for (var i = 0; i < appointments.Count; i += 2)
                 yield return EnlaceEletronicPointPairsLoad(appointments[i], i == appointments.Count - 1 ? 
                                                                     null : 
@@ -421,7 +456,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
         private EletronicPointPairs HandleAppointments(EletronicPointPairs result, Appointment a1, Appointment a2)
         {
-            var appointments =  new Appointment[] { a1, a2 }.OrderBy(x => x?.Date).ToArray();
+            var appointments =  new Appointment[] { a1, a2 }.OrderBy(x => x?.DateHour).ToArray();
             if (a1 is not null || a2 is not null)
             {
                 if (a1 is not null && a2 is not null) HandleBothAppointmentsNotNull(ref result, appointments);

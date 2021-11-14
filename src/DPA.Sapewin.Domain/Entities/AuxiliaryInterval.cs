@@ -25,11 +25,10 @@ namespace DPA.Sapewin.Domain.Entities
         public Schedule Horarios { get; set; }
 
         public bool DiscountInterval { get; set; }
+    }
 
-        public enum AuxiliaryIntervalKind
-        {
-            Fixo=1, Carga=2
-        }
-
+    public enum AuxiliaryIntervalKind
+    {
+        Fixed=1, Charge=2
     }
 }
