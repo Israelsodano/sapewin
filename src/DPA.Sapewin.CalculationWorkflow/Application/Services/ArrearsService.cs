@@ -3,37 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
-using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IArrearService
     {
-        IAsyncEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint);
+        IEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint);
     }
 
     public class ArrearsService : CalculationBase, IArrearService
     {
-        private readonly IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
 
-        public ArrearsService(IAppointmentsService appointmentsService,
-                              IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) : base(appointmentsService)
-        {
-            _unitOfWorkEletronicPoint = unitOfWorkEletronicPoint ?? throw new ArgumentNullException(nameof(appointmentsService));
-        }
+        public ArrearsService(IAppointmentsService appointmentsService) : base(appointmentsService)
+        { }
 
-        public async IAsyncEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint)
+        public IEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint)
         {
             foreach (var pairsByEletronicPoint in eletronicPointsPairsByEletronicPoint)
-            {
-                var celetronicPoint = CalculateArrears(pairsByEletronicPoint.Key,
-                                                       pairsByEletronicPoint);
-
-                celetronicPoint = _unitOfWorkEletronicPoint.Repository.Update(celetronicPoint);
-                await _unitOfWorkEletronicPoint.SaveChangesAsync();
-
-                yield return celetronicPoint;
-            }
+                yield return CalculateArrears(pairsByEletronicPoint.Key, pairsByEletronicPoint);
         }
 
         private EletronicPoint CalculateArrears(EletronicPoint eletronicPoint,
