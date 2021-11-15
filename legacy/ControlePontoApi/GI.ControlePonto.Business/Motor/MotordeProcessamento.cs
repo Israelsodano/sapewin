@@ -92,7 +92,7 @@ namespace GI.ControlePonto.Business
                     Funcionario = funcionario,
                     Calendario = new List<Calendario>()
                 };
-                
+
                 HorariosnaBase = await horarios;
                 IList<Afastamentos> afastamentosFuncionario =
                                                 await taskAfastamentosFuncionario;
@@ -291,11 +291,11 @@ namespace GI.ControlePonto.Business
                 });
             });
         }
-        
+
 
         private bool VerificaOutroDia(string entrada, string saida) =>
             Calculadora.HorasparaMinuto(saida) < Calculadora.HorasparaMinuto(entrada);
-            
+
         private async Task EncaixaMarcacoes(List<Marcacoes> marcacoes,
                                             Horarios horario,
                                             Ponto ponto,
@@ -308,9 +308,9 @@ namespace GI.ControlePonto.Business
                              marcacaoSaida;
 
 
-            var horarioDataHora = new HorarioDataHora(horario, ponto.Data.Date);            
+            var horarioDataHora = new HorarioDataHora(horario, ponto.Data.Date);
 
-            var horasMarcacoes = new [] 
+            var horasMarcacoes = new[]
             {
                 horario.Entrada,
                 horario.EntradaIntervalo,
@@ -325,9 +325,9 @@ namespace GI.ControlePonto.Business
             marcacoesUsadas.Add(marcacaoEntrada);
             if (horario.EntradaIntervalo != null)
             {
-                marcacaoEntradaIntervalo = await PegaMarcacao(horarioDataHora, marcacoes.Where(x=> !marcacoesUsadas.Any(y=> y.datahora == x.datahora)).ToArray(), horario.EntradaIntervalo, true, horasMarcacoes);
+                marcacaoEntradaIntervalo = await PegaMarcacao(horarioDataHora, marcacoes.Where(x => !marcacoesUsadas.Any(y => y.datahora == x.datahora)).ToArray(), horario.EntradaIntervalo, true, horasMarcacoes);
 
-                marcacaoEntradaIntervalo = funcionario.Intervalo == Funcionarios.intervalo.Pre_Assinalado ? 
+                marcacaoEntradaIntervalo = funcionario.Intervalo == Funcionarios.intervalo.Pre_Assinalado ?
                                                 marcacaoEntradaIntervalo == null ?
                                                 new Marcacoes { IDEmpresa = ponto.IDEmpresa, IDFuncionario = funcionario.IDFuncionario, datahora = Calculadora.HoraEmDateTime(horario.EntradaIntervalo, ponto.Data.AddDays(VerificaOutroDia(horario.Entrada, horario.EntradaIntervalo) ? 1 : 0)) }
                                             : marcacaoEntradaIntervalo
@@ -335,9 +335,9 @@ namespace GI.ControlePonto.Business
 
                 marcacoesUsadas.Add(marcacaoEntradaIntervalo);
 
-                marcacaoSaidaIntervalo = await PegaMarcacao(horarioDataHora, marcacoes.Where(x=> !marcacoesUsadas.Any(y=> y.datahora == x.datahora)).ToArray(), horario.SaidaIntervalo, true, horasMarcacoes);
+                marcacaoSaidaIntervalo = await PegaMarcacao(horarioDataHora, marcacoes.Where(x => !marcacoesUsadas.Any(y => y.datahora == x.datahora)).ToArray(), horario.SaidaIntervalo, true, horasMarcacoes);
 
-                marcacaoSaidaIntervalo = funcionario.Intervalo == Funcionarios.intervalo.Pre_Assinalado ? 
+                marcacaoSaidaIntervalo = funcionario.Intervalo == Funcionarios.intervalo.Pre_Assinalado ?
                                             marcacaoSaidaIntervalo == null ?
                                             new Marcacoes { IDEmpresa = ponto.IDEmpresa, IDFuncionario = funcionario.IDFuncionario, datahora = Calculadora.HoraEmDateTime(horario.SaidaIntervalo, ponto.Data.AddDays(VerificaOutroDia(horario.Entrada, horario.SaidaIntervalo) ? 1 : 0)) }
                                             : marcacaoSaidaIntervalo
@@ -347,7 +347,7 @@ namespace GI.ControlePonto.Business
 
             }
 
-            marcacaoSaida = await PegaMarcacao(horarioDataHora, marcacoes.Where(x=> !marcacoesUsadas.Any(y=> y.datahora == x.datahora)).ToArray(), horario.Saida, false, horasMarcacoes);
+            marcacaoSaida = await PegaMarcacao(horarioDataHora, marcacoes.Where(x => !marcacoesUsadas.Any(y => y.datahora == x.datahora)).ToArray(), horario.Saida, false, horasMarcacoes);
 
             var marcacoesReferencia = marcacoes;
 
@@ -366,7 +366,7 @@ namespace GI.ControlePonto.Business
                     new HelperPares(marcacaoEntrada, marcacaoSaida, horario, ponto),
             };
 
-            helper.RemoveAll(x=> x.marcacaoEntrada == null && x.marcacaoSaida == null);
+            helper.RemoveAll(x => x.marcacaoEntrada == null && x.marcacaoSaida == null);
 
             for (int i = 0; i < marcacoes.Count; i++)
             {
@@ -391,20 +391,21 @@ namespace GI.ControlePonto.Business
                 marcacoesPerfeitasTotais.AddRange(new[] { intervalo.Inicio, intervalo.Fim });
             }
 
-            if(marcacaoSaidaIntervalo == null)
-                marcacaoSaidaIntervalo = new Marcacoes{ datahora = horarioDataHora.DatasHorario[horario.SaidaIntervalo] };    
+            if (marcacaoSaidaIntervalo == null)
+                marcacaoSaidaIntervalo = new Marcacoes { datahora = horarioDataHora.DatasHorario[horario.SaidaIntervalo] };
 
-            if(marcacaoEntradaIntervalo == null){
+            if (marcacaoEntradaIntervalo == null)
+            {
                 var diffHorarioCadastrado = (horarioDataHora.DatasHorario[horario.SaidaIntervalo] - horarioDataHora.DatasHorario[horario.EntradaIntervalo]).TotalMinutes;
                 marcacaoEntradaIntervalo = new Marcacoes { datahora = marcacaoSaidaIntervalo.datahora.AddMinutes(-diffHorarioCadastrado) };
             }
 
-            var calendario = CalendarioFuncionario.FirstOrDefault(x=> CompareFunc(x.Funcionario, funcionario)).Calendario.FirstOrDefault(x=> x.Data.Date == ponto.Data.Date);
+            var calendario = CalendarioFuncionario.FirstOrDefault(x => CompareFunc(x.Funcionario, funcionario)).Calendario.FirstOrDefault(x => x.Data.Date == ponto.Data.Date);
 
             ponto = await CalculaAtrasos(helper, horarioDataHora, horario, ponto, funcionario, marcacoes, marcacaoEntradaIntervalo, marcacaoSaidaIntervalo, calendario);
             ponto = await CalculaSaidasAntecipadas(helper, horarioDataHora, horario, ponto, funcionario, marcacoes, marcacaoEntradaIntervalo, calendario);
-            ponto = await CalculaHorasTrabalhadas(helper, horarioDataHora, horario, ponto, marcacoes, marcacoesPerfeitasTotais,  marcacaoEntradaIntervalo, marcacaoSaidaIntervalo, calendario);
-            ponto = await CalculaFaltas(helper, horarioDataHora, horario, ponto, marcacoes, marcacoesPerfeitasTotais,  marcacaoEntradaIntervalo, calendario);
+            ponto = await CalculaHorasTrabalhadas(helper, horarioDataHora, horario, ponto, marcacoes, marcacoesPerfeitasTotais, marcacaoEntradaIntervalo, marcacaoSaidaIntervalo, calendario);
+            ponto = await CalculaFaltas(helper, horarioDataHora, horario, ponto, marcacoes, marcacoesPerfeitasTotais, marcacaoEntradaIntervalo, calendario);
             ponto = await CalculaHorasExtra(helper, horarioDataHora, horario, ponto, funcionario, marcacoes, marcacoesPerfeitasTotais, marcacaoEntradaIntervalo, marcacaoSaidaIntervalo);
             ponto = await CalculaAdicionalNoturno(helper, horarioDataHora, horario, ponto, funcionario, marcacaoEntradaIntervalo, marcacaoSaidaIntervalo);
 
@@ -415,32 +416,32 @@ namespace GI.ControlePonto.Business
             await repositorioPontoPares.InsertAsync(helper.ToPontoPares());
         }
 
-        private async Task<Ponto> CalculaAtrasos(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, Funcionarios funcionario, List<Marcacoes> marcacoes,  Marcacoes marcacaoIntervaloEntrada, Marcacoes marcacaoIntervaloSaida, Calendario calendario)
+        private async Task<Ponto> CalculaAtrasos(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, Funcionarios funcionario, List<Marcacoes> marcacoes, Marcacoes marcacaoIntervaloEntrada, Marcacoes marcacaoIntervaloSaida, Calendario calendario)
         {
             int atrasosPer1 = 0;
             int atrasosPer2 = 0;
             int tryparse;
 
-            if(int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
+            if (int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
             {
-                var marcacoesEntrada = pares.Where(x=> !x.IsParNulo()).Select(x=> x.marcacaoEntrada).ToList();
+                var marcacoesEntrada = pares.Where(x => !x.IsParNulo()).Select(x => x.marcacaoEntrada).ToList();
 
                 marcacoes.AddRange(marcacoesEntrada);
-                marcacoes.AddRange(pares.Where(x=> x.marcacaoSaida != null)
-                            .Select(x=> x.marcacaoSaida));
+                marcacoes.AddRange(pares.Where(x => x.marcacaoSaida != null)
+                            .Select(x => x.marcacaoSaida));
 
                 var marcacoesPerfeitas = new List<string>
                 {
-                    horario.Entrada,     
+                    horario.Entrada,
                 };
 
                 var intervalosCarga = new List<string>();
 
-                foreach (var intervalo in horario.IntervalosAuxiliares.Where(x=> x.DescontarIntervalo))
+                foreach (var intervalo in horario.IntervalosAuxiliares.Where(x => x.DescontarIntervalo))
                 {
-                    if(intervalo.Tipo == IntervalosAuxiliares.tipo.Fixo)
+                    if (intervalo.Tipo == IntervalosAuxiliares.tipo.Fixo)
                         marcacoesPerfeitas.Add(intervalo.Inicio);
-                    else    
+                    else
                         intervalosCarga.Add(intervalo.Carga);
                 }
 
@@ -450,7 +451,7 @@ namespace GI.ControlePonto.Business
                 foreach (var marcacaoPerfeita in marcacoesPerfeitas)
                 {
                     var result = await PegaMarcacao(horarioDataHora, marcacoesEntrada, marcacaoPerfeita, true, marcacoesPerfeitas);
-                    if(result !=  null)
+                    if (result != null)
                     {
                         marcacoesUsadas.Add(result);
                         atribuidor.Add(horarioDataHora.DatasHorario[marcacaoPerfeita], result.datahora);
@@ -459,7 +460,7 @@ namespace GI.ControlePonto.Business
 
                 int minutosIntervalo = Calculadora.HorasparaMinuto(Calculadora.PegaHoras(marcacaoIntervaloEntrada.datahora));
 
-                var periodo1 = atribuidor.Keys.Where(x=> x <= marcacaoIntervaloEntrada.datahora).ToArray();
+                var periodo1 = atribuidor.Keys.Where(x => x <= marcacaoIntervaloEntrada.datahora).ToArray();
 
                 foreach (var marcacao in periodo1)
                 {
@@ -472,15 +473,16 @@ namespace GI.ControlePonto.Business
 
                 int diffIntervalo = 0;
                 var horarioEntradaIntervalo = Calculadora.HoraEmDateTime(horario.EntradaIntervalo, ponto.Data.Date.AddDays(VerificaOutroDia(horario.Entrada, horario.EntradaIntervalo) ? 1 : 0));
-                
-                if(!funcionario.IntervaloFixo)
+
+                if (!funcionario.IntervaloFixo)
                 {
-                    var horariosIntervalo = new[]{ horario.EntradaIntervalo, horario.SaidaIntervalo };
+                    var horariosIntervalo = new[] { horario.EntradaIntervalo, horario.SaidaIntervalo };
 
                     var horarioSaidaIntervalo = horarioDataHora.DatasHorario[horario.SaidaIntervalo];
 
                     diffIntervalo = (int)((marcacaoIntervaloSaida.datahora - marcacaoIntervaloEntrada.datahora).TotalMinutes - (horarioSaidaIntervalo - horarioEntradaIntervalo).TotalMinutes);
-                }else
+                }
+                else
                 {
                     diffIntervalo = (int)(marcacaoIntervaloEntrada.datahora - horarioEntradaIntervalo).TotalMinutes;
                 }
@@ -489,7 +491,7 @@ namespace GI.ControlePonto.Business
 
                 atrasosPer1 += diffIntervalo;
 
-                var periodo2 = atribuidor.Keys.Where(x=> x > marcacaoIntervaloEntrada.datahora).ToArray();
+                var periodo2 = atribuidor.Keys.Where(x => x > marcacaoIntervaloEntrada.datahora).ToArray();
 
                 foreach (var marcacao in periodo2)
                 {
@@ -504,13 +506,13 @@ namespace GI.ControlePonto.Business
                 {
                     var par = pares.PegaParPorDiferencadeIntervalos(intervalo, marcacoesUsadas);
 
-                    if(par != null)
+                    if (par != null)
                     {
                         var result = (par.DiferencaEmMinutos() - Calculadora.HorasparaMinuto(intervalo));
 
-                        if(par.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora)
+                        if (par.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora)
                             atrasosPer1 += result > 0 ? result : 0;
-                        else    
+                        else
                             atrasosPer2 += result > 0 ? result : 0;
                     }
                 }
@@ -523,37 +525,37 @@ namespace GI.ControlePonto.Business
 
             atrasosPer1 = atrasosPer1 > Calculadora.HorasparaMinuto(funcionario.Parametro.AtrasoTotal1P) ? atrasosPer1 : 0;
             atrasosPer2 = atrasosPer2 > Calculadora.HorasparaMinuto(funcionario.Parametro.AtrasoTotal2P) ? atrasosPer2 : 0;
-            
+
             ponto.AtrasoDesPer1 = Calculadora.MinutosparaHora(atrasosPer1);
             ponto.AtrasoDesPer2 = Calculadora.MinutosparaHora(atrasosPer2);
 
             return ponto;
         }
 
-        private async Task<Ponto> CalculaSaidasAntecipadas(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, Funcionarios funcionario, List<Marcacoes> marcacoes,  Marcacoes marcacaoIntervaloEntrada, Calendario calendario)
+        private async Task<Ponto> CalculaSaidasAntecipadas(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, Funcionarios funcionario, List<Marcacoes> marcacoes, Marcacoes marcacaoIntervaloEntrada, Calendario calendario)
         {
             int saidaAntecipadaPer1 = 0;
             int saidaAntecipadaPer2 = 0;
 
             int tryparse;
 
-            if(int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
+            if (int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
             {
-                var marcacoesSaida = pares.Where(x=> !x.IsParNulo()).Select(x=> x.marcacaoSaida).ToList();
+                var marcacoesSaida = pares.Where(x => !x.IsParNulo()).Select(x => x.marcacaoSaida).ToList();
 
                 marcacoes.AddRange(marcacoesSaida);
-                marcacoes.AddRange(pares.Where(x=> x.marcacaoEntrada != null)
-                            .Select(x=> x.marcacaoEntrada));
+                marcacoes.AddRange(pares.Where(x => x.marcacaoEntrada != null)
+                            .Select(x => x.marcacaoEntrada));
 
                 var marcacoesPerfeitas = new List<string>
                 {
-                    horario.Saida,     
+                    horario.Saida,
                     horario.EntradaIntervalo
                 };
 
-                foreach (var intervalo in horario.IntervalosAuxiliares.Where(x=> x.DescontarIntervalo))
+                foreach (var intervalo in horario.IntervalosAuxiliares.Where(x => x.DescontarIntervalo))
                 {
-                    if(intervalo.Tipo == IntervalosAuxiliares.tipo.Fixo)
+                    if (intervalo.Tipo == IntervalosAuxiliares.tipo.Fixo)
                         marcacoesPerfeitas.Add(intervalo.Fim);
                 }
 
@@ -562,13 +564,13 @@ namespace GI.ControlePonto.Business
                 foreach (var marcacaoPerfeita in marcacoesPerfeitas)
                 {
                     var result = await PegaMarcacao(horarioDataHora, marcacoesSaida, marcacaoPerfeita, true, marcacoesPerfeitas);
-                    if(result != null)
+                    if (result != null)
                         atribuidor.Add(horarioDataHora.DatasHorario[marcacaoPerfeita], result.datahora);
                 }
 
-                var periodo1 = atribuidor.Keys.Where(x=> x <= marcacaoIntervaloEntrada.datahora).ToArray();
-                
-                if(funcionario.IntervaloFixo)
+                var periodo1 = atribuidor.Keys.Where(x => x <= marcacaoIntervaloEntrada.datahora).ToArray();
+
+                if (funcionario.IntervaloFixo)
                     foreach (var marcacao in periodo1)
                     {
                         int diff = (int)(marcacao - atribuidor[marcacao]).TotalMinutes;
@@ -577,9 +579,9 @@ namespace GI.ControlePonto.Business
 
                         saidaAntecipadaPer1 += diff;
                     }
-                    
 
-                var periodo2 = atribuidor.Keys.Where(x=> x > marcacaoIntervaloEntrada.datahora).ToArray();
+
+                var periodo2 = atribuidor.Keys.Where(x => x > marcacaoIntervaloEntrada.datahora).ToArray();
 
                 foreach (var marcacao in periodo2)
                 {
@@ -607,24 +609,24 @@ namespace GI.ControlePonto.Business
 
         private async Task<Ponto> CalculaHorasTrabalhadas(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, List<Marcacoes> marcacoes, List<string> marcacoesPerfeitas, Marcacoes marcacaoIntervaloEntrada, Marcacoes marcacaoIntervaloSaida, Calendario calendario)
         {
-           return await Task<Ponto>.Run(() => 
-           {
+            return await Task<Ponto>.Run(() =>
+            {
                 var horasTrabalhadasPer1 = 0;
                 var horasTrabalhadasPer2 = 0;
 
                 int tryparse;
 
-            if(int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
-            {
-                    pares = pares.Where(x=> !x.IsParNulo() && (x.GetMenorMarcacao().datahora >= horarioDataHora.DatasHorario[horario.Entrada] && x.GetMaiorMarcacao().datahora <= horarioDataHora.DatasHorario[horario.Saida])).ToList();
-                    horasTrabalhadasPer1 = pares.Where(x=> x.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora ).Select(x=>x.DiferencaEmMinutos()).Sum();
-                    horasTrabalhadasPer2 = pares.Where(x=>x.GetMenorMarcacao().datahora > marcacaoIntervaloEntrada.datahora).Select(x=>x.DiferencaEmMinutos()).Sum();
+                if (int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
+                {
+                    pares = pares.Where(x => !x.IsParNulo() && (x.GetMenorMarcacao().datahora >= horarioDataHora.DatasHorario[horario.Entrada] && x.GetMaiorMarcacao().datahora <= horarioDataHora.DatasHorario[horario.Saida])).ToList();
+                    horasTrabalhadasPer1 = pares.Where(x => x.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora).Select(x => x.DiferencaEmMinutos()).Sum();
+                    horasTrabalhadasPer2 = pares.Where(x => x.GetMenorMarcacao().datahora > marcacaoIntervaloEntrada.datahora).Select(x => x.DiferencaEmMinutos()).Sum();
 
-                    if(horario.NDescontarIntervalo)
+                    if (horario.NDescontarIntervalo)
                     {
                         var diffIntervalos = (int)(marcacaoIntervaloSaida.datahora - marcacaoIntervaloEntrada.datahora).TotalMinutes;
 
-                        if((diffIntervalos % 2) != 0)
+                        if ((diffIntervalos % 2) != 0)
                         {
                             horasTrabalhadasPer2 += 1;
                             diffIntervalos -= 1;
@@ -633,7 +635,7 @@ namespace GI.ControlePonto.Business
                         horasTrabalhadasPer1 += diffIntervalos / 2;
                         horasTrabalhadasPer2 += diffIntervalos / 2;
                     }
-            }
+                }
 
                 ponto.HoraPagPer1 = Calculadora.MinutosparaHora(horasTrabalhadasPer1);
                 ponto.HoraPagPer2 = Calculadora.MinutosparaHora(horasTrabalhadasPer2);
@@ -643,18 +645,18 @@ namespace GI.ControlePonto.Business
         }
 
         private async Task<Ponto> CalculaFaltas(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, List<Marcacoes> marcacoes, List<string> marcacoesPerfeitas, Marcacoes marcacaoIntervalo, Calendario calendario)
-        {   
-            return await Task<Ponto>.Run(() => 
+        {
+            return await Task<Ponto>.Run(() =>
             {
                 int faltasPer1 = 0;
                 int faltasPer2 = 0;
 
                 int tryparse;
 
-            if(int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
+                if (int.TryParse(calendario.ReferenciaSemHorario, out tryparse))
                 {
-                    pares = pares.Where(x=>x.GetMenorMarcacao().datahora >= horarioDataHora.DatasHorario[horario.Entrada]).OrderBy(x=>x.GetMenorMarcacao().datahora).ToList();
-                    var paresnulos = pares.Where(x=> x.IsParNulo()).OrderBy(x=>x.GetMenorMarcacao().datahora);
+                    pares = pares.Where(x => x.GetMenorMarcacao().datahora >= horarioDataHora.DatasHorario[horario.Entrada]).OrderBy(x => x.GetMenorMarcacao().datahora).ToList();
+                    var paresnulos = pares.Where(x => x.IsParNulo()).OrderBy(x => x.GetMenorMarcacao().datahora);
 
 
                     foreach (var par in paresnulos)
@@ -667,16 +669,16 @@ namespace GI.ControlePonto.Business
                         }
 
                         int diff = (int)(par.GetMaiorMarcacao().datahora - parvetor.GetMenorMarcacao().datahora).TotalMinutes;
-                        
-                        if(par.GetMaiorMarcacao().datahora <= marcacaoIntervalo.datahora) 
+
+                        if (par.GetMaiorMarcacao().datahora <= marcacaoIntervalo.datahora)
                             faltasPer1 += diff;
                         else faltasPer2 += diff;
                     }
 
-                    if(!pares.Any(x=> x.GetMenorMarcacao().datahora <= marcacaoIntervalo.datahora))
+                    if (!pares.Any(x => x.GetMenorMarcacao().datahora <= marcacaoIntervalo.datahora))
                         faltasPer1 = (int)(horarioDataHora.DatasHorario[horario.EntradaIntervalo] - horarioDataHora.DatasHorario[horario.Entrada]).TotalMinutes;
 
-                    if(!pares.Any(x=> x.GetMaiorMarcacao().datahora > marcacaoIntervalo.datahora))
+                    if (!pares.Any(x => x.GetMaiorMarcacao().datahora > marcacaoIntervalo.datahora))
                         faltasPer2 = (int)(horarioDataHora.DatasHorario[horario.EntradaIntervalo] - horarioDataHora.DatasHorario[horario.Entrada]).TotalMinutes;
                 }
 
@@ -689,19 +691,19 @@ namespace GI.ControlePonto.Business
 
         private async Task<Ponto> CalculaHorasExtra(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, Funcionarios funcionario, List<Marcacoes> marcacoes, List<string> marcacoesPerfeitas, Marcacoes marcacaoIntervaloEntrada, Marcacoes marcacaoIntervaloSaida)
         {
-            return await Task<Ponto>.Run(() => 
+            return await Task<Ponto>.Run(() =>
             {
 
                 var dataini = horarioDataHora.DatasHorario[horario.Entrada];
                 var datafim = horarioDataHora.DatasHorario[horario.Saida];
 
-                var paresExtra = pares.Where(x=> !x.IsParNulo()).Where(x=> x.GetMenorMarcacao().datahora < dataini || x.GetMaiorMarcacao().datahora > datafim || (x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora));
-                
-                int extraPer1 = paresExtra.Where(x=> x.GetMenorMarcacao().datahora < dataini).Sum(x=> x.DiferencaEmMinutosHoraMaxima(horarioDataHora.DatasHorario[horario.Entrada]));
-                int extraPer2 = paresExtra.Where(x=> x.GetMaiorMarcacao().datahora > datafim).Sum(x=> x.DiferencaEmMinutosHoraMinima(horarioDataHora.DatasHorario[horario.Saida]));
-                int extraInter = paresExtra.Where(x=> x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora).Sum(x=> x.DiferencaEmMinutos());
+                var paresExtra = pares.Where(x => !x.IsParNulo()).Where(x => x.GetMenorMarcacao().datahora < dataini || x.GetMaiorMarcacao().datahora > datafim || (x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora));
 
-                if((extraInter + extraPer2 + extraPer1) < Calculadora.HorasparaMinuto(funcionario.Parametro.ExtraJornada)) 
+                int extraPer1 = paresExtra.Where(x => x.GetMenorMarcacao().datahora < dataini).Sum(x => x.DiferencaEmMinutosHoraMaxima(horarioDataHora.DatasHorario[horario.Entrada]));
+                int extraPer2 = paresExtra.Where(x => x.GetMaiorMarcacao().datahora > datafim).Sum(x => x.DiferencaEmMinutosHoraMinima(horarioDataHora.DatasHorario[horario.Saida]));
+                int extraInter = paresExtra.Where(x => x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora).Sum(x => x.DiferencaEmMinutos());
+
+                if ((extraInter + extraPer2 + extraPer1) < Calculadora.HorasparaMinuto(funcionario.Parametro.ExtraJornada))
                     extraInter = extraPer2 = extraPer1 = 0;
 
                 extraPer1 = extraPer1 < Calculadora.HorasparaMinuto(funcionario.Parametro.ExtraTotal1P) ? 0 : extraPer1;
@@ -719,28 +721,28 @@ namespace GI.ControlePonto.Business
 
         private async Task<Ponto> CalculaAdicionalNoturno(IList<HelperPares> pares, HorarioDataHora horarioDataHora, Horarios horario, Ponto ponto, Funcionarios funcionario, Marcacoes marcacaoIntervaloEntrada, Marcacoes marcacaoIntervaloSaida)
         {
-            return await Task<Ponto>.Run(() => 
+            return await Task<Ponto>.Run(() =>
             {
                 DateTime inicioAdicional, fimAdicional;
 
                 inicioAdicional = Calculadora.HoraEmDateTime(funcionario.Parametro.AdicionalNoturnoInicio, ponto.Data.AddDays(VerificaOutroDia(horario.Entrada, funcionario.Parametro.AdicionalNoturnoInicio) ? 1 : 0));
                 fimAdicional = Calculadora.HoraEmDateTime(funcionario.Parametro.AdicionalNoturnoFim, ponto.Data.AddDays(VerificaOutroDia(horario.Entrada, funcionario.Parametro.AdicionalNoturnoFim) ? 1 : 0));
 
-                var paresAdicionalNoturnoTotais = pares.Where(x=> !x.IsParNulo() && (x.GetMenorMarcacao().datahora >= inicioAdicional && (funcionario.Parametro.AdcnFinaldoexpediente || x.GetMaiorMarcacao().datahora <= fimAdicional)));
+                var paresAdicionalNoturnoTotais = pares.Where(x => !x.IsParNulo() && (x.GetMenorMarcacao().datahora >= inicioAdicional && (funcionario.Parametro.AdcnFinaldoexpediente || x.GetMaiorMarcacao().datahora <= fimAdicional)));
 
-                var paresExtraAdicional = paresAdicionalNoturnoTotais.Where(x=> x.GetMenorMarcacao().datahora < horarioDataHora.DatasHorario[horario.Entrada] || x.GetMaiorMarcacao().datahora > horarioDataHora.DatasHorario[horario.Saida] || (x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora));
-                
-                var extraAdicionalPer1 = paresExtraAdicional.Where(x=> x.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora).Sum(x=>x.DiferencaEmMinutosHoraMaxima(horarioDataHora.DatasHorario[horario.Entrada]));
+                var paresExtraAdicional = paresAdicionalNoturnoTotais.Where(x => x.GetMenorMarcacao().datahora < horarioDataHora.DatasHorario[horario.Entrada] || x.GetMaiorMarcacao().datahora > horarioDataHora.DatasHorario[horario.Saida] || (x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora));
 
-                var extraAdicionalPer2 = paresExtraAdicional.Where(x=> x.GetMenorMarcacao().datahora >= marcacaoIntervaloSaida.datahora).Sum(x=> x.DiferencaEmMinutosHoraMinima(horarioDataHora.DatasHorario[horario.Saida]));
+                var extraAdicionalPer1 = paresExtraAdicional.Where(x => x.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora).Sum(x => x.DiferencaEmMinutosHoraMaxima(horarioDataHora.DatasHorario[horario.Entrada]));
 
-                var extraAdicionalInter = paresExtraAdicional.Where(x=> x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora).Sum(x=>x.DiferencaEmMinutos());
+                var extraAdicionalPer2 = paresExtraAdicional.Where(x => x.GetMenorMarcacao().datahora >= marcacaoIntervaloSaida.datahora).Sum(x => x.DiferencaEmMinutosHoraMinima(horarioDataHora.DatasHorario[horario.Saida]));
 
-                var AdicionalPer1 = paresAdicionalNoturnoTotais.Where(x=> x.GetMaiorMarcacao().datahora >= horarioDataHora.DatasHorario[horario.Entrada] && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora).Sum(x=>x.DiferencaEmMinutos());
-                
-                var AdicionalPer2 = paresAdicionalNoturnoTotais.Where(x=> x.GetMaiorMarcacao().datahora >= marcacaoIntervaloSaida.datahora && x.GetMaiorMarcacao().datahora <= horarioDataHora.DatasHorario[horario.Saida]).Sum(x=>x.DiferencaEmMinutos());
-                
-                if((extraAdicionalInter + extraAdicionalPer1 + extraAdicionalPer2) < Calculadora.HorasparaMinuto(funcionario.Parametro.ExtraJornada))
+                var extraAdicionalInter = paresExtraAdicional.Where(x => x.GetMenorMarcacao().datahora >= marcacaoIntervaloEntrada.datahora && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloSaida.datahora).Sum(x => x.DiferencaEmMinutos());
+
+                var AdicionalPer1 = paresAdicionalNoturnoTotais.Where(x => x.GetMaiorMarcacao().datahora >= horarioDataHora.DatasHorario[horario.Entrada] && x.GetMaiorMarcacao().datahora <= marcacaoIntervaloEntrada.datahora).Sum(x => x.DiferencaEmMinutos());
+
+                var AdicionalPer2 = paresAdicionalNoturnoTotais.Where(x => x.GetMaiorMarcacao().datahora >= marcacaoIntervaloSaida.datahora && x.GetMaiorMarcacao().datahora <= horarioDataHora.DatasHorario[horario.Saida]).Sum(x => x.DiferencaEmMinutos());
+
+                if ((extraAdicionalInter + extraAdicionalPer1 + extraAdicionalPer2) < Calculadora.HorasparaMinuto(funcionario.Parametro.ExtraJornada))
                     extraAdicionalInter = extraAdicionalPer1 = extraAdicionalPer2 = 0;
 
 
@@ -749,14 +751,14 @@ namespace GI.ControlePonto.Business
                 ponto.ExtraAdicPagPer1 = Calculadora.MinutosparaHora(extraAdicionalPer1);
                 ponto.ExtraAdicPagInter = Calculadora.MinutosparaHora(extraAdicionalInter);
                 ponto.ExtraAdicPagPer2 = Calculadora.MinutosparaHora(extraAdicionalPer2);
-                
+
                 return ponto;
             });
         }
 
         private async Task CalculaDsr(DateTime dataini, DateTime datafim, Funcionarios funcionario)
         {
-            var calendario = CalendarioFuncionario.FirstOrDefault(x=> CompareFunc(x.Funcionario, funcionario));
+            var calendario = CalendarioFuncionario.FirstOrDefault(x => CompareFunc(x.Funcionario, funcionario));
 
             var de_paraDias = new Dictionary<Escalas.viradaSemana, DayOfWeek>
             {
@@ -771,12 +773,12 @@ namespace GI.ControlePonto.Business
 
             var viradaSemana = de_paraDias[funcionario.Escala.ViradaSemana];
 
-            while((int)dataini.DayOfWeek != (viradaSemana == DayOfWeek.Saturday ? (int)DayOfWeek.Sunday : ((int)viradaSemana) + 1))
+            while ((int)dataini.DayOfWeek != (viradaSemana == DayOfWeek.Saturday ? (int)DayOfWeek.Sunday : ((int)viradaSemana) + 1))
             {
                 dataini = dataini.AddDays(-1);
             }
 
-            while(datafim.DayOfWeek != viradaSemana)
+            while (datafim.DayOfWeek != viradaSemana)
             {
                 datafim = datafim.AddDays(1);
             }
@@ -785,7 +787,7 @@ namespace GI.ControlePonto.Business
 
             var repositoryPonto = _repositoryPonto.Clone();
 
-            var pontos = await repositoryPonto.GetAll(x=> (x.Data >= dataini && x.Data <= datafim) && x.IDFuncionario == funcionario.IDFuncionario && x.IDEmpresa == funcionario.IDEmpresa).ToListAsync();
+            var pontos = await repositoryPonto.GetAll(x => (x.Data >= dataini && x.Data <= datafim) && x.IDFuncionario == funcionario.IDFuncionario && x.IDEmpresa == funcionario.IDEmpresa).ToListAsync();
 
             var SemanasPonto = new List<SemanaPonto>();
 
@@ -797,11 +799,11 @@ namespace GI.ControlePonto.Business
                 var dataInicioSemana = datavetor;
                 var dataFimSemana = dataInicioSemana.AddDays(7);
 
-                var pontosSemana = pontos.Where(x=>x.Data >= dataInicioSemana && x.Data <= dataFimSemana);
+                var pontosSemana = pontos.Where(x => x.Data >= dataInicioSemana && x.Data <= dataFimSemana);
 
                 foreach (var ponto in pontosSemana)
                 {
-                    var dia = new DiaPonto(ponto, funcionario.Parametro, calendario.Calendario.FirstOrDefault(x=> x.Data == ponto.Data));
+                    var dia = new DiaPonto(ponto, funcionario.Parametro, calendario.Calendario.FirstOrDefault(x => x.Data == ponto.Data));
                     await dia.Calcula();
                     semana.DiasdaSemana.Add(dia);
                 }
@@ -819,64 +821,64 @@ namespace GI.ControlePonto.Business
 
                 foreach (var diaSemana in semana.DiasdaSemana)
                 {
-                    if(!diaSemana.IsDsr)
-                        if(diaSemana.IsFaltaouAtraso)
+                    if (!diaSemana.IsDsr)
+                        if (diaSemana.IsFaltaouAtraso)
                         {
                             atrasoseSaidasMin += diaSemana.QtdAtrasoseSaidasEmMinutos;
                             faltasMin += diaSemana.QtdFaltasEmMinutos;
-                            
-                            if(diaSemana.QtdFaltasEmMinutos > 0)
+
+                            if (diaSemana.QtdFaltasEmMinutos > 0)
                                 diasdeOcorrenciaFalta++;
 
-                            if(diaSemana.QtdAtrasoseSaidasEmMinutos > 0)
+                            if (diaSemana.QtdAtrasoseSaidasEmMinutos > 0)
                                 diasdeOcorrenciaAtraso++;
                         }
 
-                    
+
                     var ultrapassouLimiteAtraso = Calculadora.HorasparaMinuto(diaSemana.parametro.OcorrenciaSemanalDsr) <= atrasoseSaidasMin;
                     var ultrapassouLimiteAtrasoFalta = faltasMin > 0 || ultrapassouLimiteAtraso;
 
 
-                    if(diaSemana.IsDsr && !diaSemana.PontoReferencia.Tratado && ultrapassouLimiteAtrasoFalta)
+                    if (diaSemana.IsDsr && !diaSemana.PontoReferencia.Tratado && ultrapassouLimiteAtrasoFalta)
                     {
-                        var dsrProporcionalHoras = funcionario.Parametro.DsrProporcionalHoras.HasValue 
+                        var dsrProporcionalHoras = funcionario.Parametro.DsrProporcionalHoras.HasValue
                                                 && diaSemana.parametro.DsrProporcionalHoras.Value;
-                        var dsrProporcionalDias = funcionario.Parametro.DsrProporcionalHoras.HasValue 
+                        var dsrProporcionalDias = funcionario.Parametro.DsrProporcionalHoras.HasValue
                                                 && !diaSemana.parametro.DsrProporcionalHoras.Value;
 
-                        if(dsrProporcionalDias || dsrProporcionalHoras)
-                            if(dsrProporcionalHoras)
+                        if (dsrProporcionalDias || dsrProporcionalHoras)
+                            if (dsrProporcionalHoras)
                                 diaSemana.PontoReferencia.DsrDescontado = Calculadora.MinutosparaHora(((ultrapassouLimiteAtraso ? atrasoseSaidasMin : 0) + faltasMin));
-                            else    
-                                diaSemana.PontoReferencia.DsrDescontado = Calculadora.MinutosparaHora((Calculadora.HorasparaMinuto(diaSemana.ValorDsr) / semana.DiasdaSemana.Count(x=> x.IsDiaTrabalho)) * (ultrapassouLimiteAtraso ? (diasdeOcorrenciaAtraso + diasdeOcorrenciaFalta) : diasdeOcorrenciaFalta));
-                        else    
+                            else
+                                diaSemana.PontoReferencia.DsrDescontado = Calculadora.MinutosparaHora((Calculadora.HorasparaMinuto(diaSemana.ValorDsr) / semana.DiasdaSemana.Count(x => x.IsDiaTrabalho)) * (ultrapassouLimiteAtraso ? (diasdeOcorrenciaAtraso + diasdeOcorrenciaFalta) : diasdeOcorrenciaFalta));
+                        else
                             diaSemana.PontoReferencia.DsrDescontado = diaSemana.ValorDsr;
 
-                        if(!funcionario.Parametro.DescontarDsrSemana)
+                        if (!funcionario.Parametro.DescontarDsrSemana)
                             atrasoseSaidasMin = faltasMin = diasdeOcorrenciaFalta = 0;
                     }
 
-                    if(diaSemana.IsDsr)
+                    if (diaSemana.IsDsr)
                     {
                         diaSemana.PontoReferencia.DsrDescontado = Calculadora.HorasparaMinuto(diaSemana.PontoReferencia.DsrDescontado) > Calculadora.HorasparaMinuto(diaSemana.ValorDsr) ? diaSemana.ValorDsr : diaSemana.PontoReferencia.DsrDescontado;
-                        diaSemana.PontoReferencia.DsrPago = Calculadora.MinutosparaHora(Calculadora.HorasparaMinuto(diaSemana.ValorDsr) 
+                        diaSemana.PontoReferencia.DsrPago = Calculadora.MinutosparaHora(Calculadora.HorasparaMinuto(diaSemana.ValorDsr)
                                                          - Calculadora.HorasparaMinuto(diaSemana.PontoReferencia.DsrDescontado));
 
                     }
-                                                            
+
                 }
 
-                if(funcionario.Parametro.DescDsrAnterioraFalta.HasValue 
-                && funcionario.Parametro.DescDsrAnterioraFalta.Value) 
+                if (funcionario.Parametro.DescDsrAnterioraFalta.HasValue
+                && funcionario.Parametro.DescDsrAnterioraFalta.Value)
                 {
                     var ultimoDsr = semana.PegaUltimoDsr();
                     semana.MudarTodososDsrPara(ultimoDsr.PontoReferencia.DsrDescontado, ultimoDsr.PontoReferencia.DsrPago);
-                }  
+                }
             }
 
             foreach (var semana in SemanasPonto)
                 foreach (var diaSemana in semana.DiasdaSemana)
-                    repositoryPonto.Update(diaSemana.PontoReferencia); 
+                    repositoryPonto.Update(diaSemana.PontoReferencia);
         }
 
 
@@ -950,7 +952,7 @@ namespace GI.ControlePonto.Business
             IRepository<FeriadosGerais> repFeriadosGerais = _repositoryFeriadosGerais.Clone();
 
 
-            FeriadosGerais =  await repFeriadosGerais.GetAll().ToListAsync();
+            FeriadosGerais = await repFeriadosGerais.GetAll().ToListAsync();
             Task montacalendario = MontaCalendarioFuncionario(funcionarios, dataini, datafim);
 
             FilaProcesso fila = new FilaProcesso
@@ -963,7 +965,7 @@ namespace GI.ControlePonto.Business
             };
 
             fila = repFila.Insert(fila);
-            
+
             using (limpaTabelas)
                 await limpaTabelas;
 
@@ -981,13 +983,13 @@ namespace GI.ControlePonto.Business
                                 .Any(y => y.IDFuncionario == x.IDFuncionario && y.IDEmpresa == x.IDEmpresa))
                                 && (dataini.AddDays(-2) <= x.datahora.Date && x.datahora.Date <= datafim.AddDays(2))).ToListAsync();
 
-            using(taskpontosnabase)
+            using (taskpontosnabase)
                 PontosnaBase = await taskpontosnabase;
 
-            using(taskmarcacoesnabase)
+            using (taskmarcacoesnabase)
                 MarcacoesnaBase = await taskmarcacoesnabase;
 
-            var apontamentosSujo =  new ApontamentoSujo[0];//await taskapontamentosSujo;
+            var apontamentosSujo = new ApontamentoSujo[0];//await taskapontamentosSujo;
             //taskapontamentosSujo.Dispose();
 
             apontamentosSujo = apontamentosSujo
@@ -1058,18 +1060,20 @@ namespace GI.ControlePonto.Business
                 var InformacoesPonto = PegaMarcacoesPonto(PontosnaBase[i]);
 
                 if (!PontosnaBase[i].Tratado)
-                    if(InformacoesPonto.Horario.Tipo == Horarios.tipo.Carga)
+                    if (InformacoesPonto.Horario.Tipo == Horarios.tipo.Carga)
                     {
                         await EncaixaMarcacoesCarga(InformacoesPonto.Marcacoes,
                                                     InformacoesPonto.Horario,
                                                     InformacoesPonto.Ponto,
                                                     InformacoesPonto.Funcionario);
-                    }else{
-                         await EncaixaMarcacoes(InformacoesPonto.Marcacoes,
-                                                InformacoesPonto.Horario,
-                                                InformacoesPonto.Ponto,
-                                                InformacoesPonto.Funcionario);
-                    }  
+                    }
+                    else
+                    {
+                        await EncaixaMarcacoes(InformacoesPonto.Marcacoes,
+                                               InformacoesPonto.Horario,
+                                               InformacoesPonto.Ponto,
+                                               InformacoesPonto.Funcionario);
+                    }
             }
 
             foreach (var encaixe in encaixedeMarcacoes)
@@ -1183,7 +1187,7 @@ namespace GI.ControlePonto.Business
             }
 
             LimpaPontos.Start();
-            using(LimpaPontos)
+            using (LimpaPontos)
                 await LimpaPontos;
         }
     }

@@ -60,8 +60,8 @@ namespace GI.ControlePonto.Business
                     marcacao1,
                     marcacao2
             }.OrderBy(x => x?.datahora);
-            
-            if(marcacao1 != null || marcacao2 != null)
+
+            if (marcacao1 != null || marcacao2 != null)
                 if (marcacao1 != null && marcacao2 != null)
                 {
                     if (marcacao1.datahora != marcacao2.datahora)
@@ -69,13 +69,14 @@ namespace GI.ControlePonto.Business
                         marcacaoEntrada = marcacoes.ElementAt(0);
                         marcacaoSaida = marcacoes.ElementAt(1);
                     }
-                    else{
+                    else
+                    {
                         int minMarc1 = Calculadora.HorasparaMinuto(Calculadora.PegaHoras(marcacao1.datahora));
-                        if(Math.Abs(minMarc1 - Calculadora.HorasparaMinuto(_horarioReferencia.Entrada)) > Math.Abs(minMarc1 - Calculadora.HorasparaMinuto(_horarioReferencia.Saida)))
-                            marcacaoSaida = marcacao1;  
-                        else 
+                        if (Math.Abs(minMarc1 - Calculadora.HorasparaMinuto(_horarioReferencia.Entrada)) > Math.Abs(minMarc1 - Calculadora.HorasparaMinuto(_horarioReferencia.Saida)))
+                            marcacaoSaida = marcacao1;
+                        else
                             marcacaoEntrada = marcacao1;
-                    } 
+                    }
                 }
                 else
                 {
@@ -90,7 +91,8 @@ namespace GI.ControlePonto.Business
                 }
         }
 
-        public bool IsMaiorQueDataHora(DateTime data){
+        public bool IsMaiorQueDataHora(DateTime data)
+        {
             var result = this.GetMenorMarcacao().datahora > data;
             return result;
         }
@@ -126,36 +128,36 @@ namespace GI.ControlePonto.Business
 
         public int PegaMinutosTrabalhados() =>
             IsParNulo() ? 0 : (int)marcacaoSaida.datahora.Subtract(marcacaoEntrada.datahora).TotalMinutes;
-       
+
 
         public bool IsParNulo() =>
             (marcacaoEntrada == null || marcacaoSaida == null) || (string.IsNullOrEmpty(marcacaoEntrada.chaveUniqueMarc) || string.IsNullOrEmpty(marcacaoSaida.chaveUniqueMarc));
 
         public int DiferencaEmMinutos()
         {
-            if(marcacaoEntrada == null || marcacaoSaida == null)
+            if (marcacaoEntrada == null || marcacaoSaida == null)
                 return 0;
-            
+
             return (int)(marcacaoSaida.datahora - marcacaoEntrada.datahora).TotalMinutes;
-        }  
+        }
 
         public int DiferencaEmMinutosHoraMinima(DateTime horaMinima)
         {
-            if(marcacaoEntrada == null || marcacaoSaida == null)
+            if (marcacaoEntrada == null || marcacaoSaida == null)
                 return 0;
-            
+
             var data = marcacaoEntrada.datahora < horaMinima ? horaMinima : marcacaoEntrada.datahora;
             return (int)(marcacaoSaida.datahora - data).TotalMinutes;
-        }  
+        }
 
         public int DiferencaEmMinutosHoraMaxima(DateTime horaMaxima)
         {
-            if(marcacaoEntrada == null || marcacaoSaida == null)
+            if (marcacaoEntrada == null || marcacaoSaida == null)
                 return 0;
-            
+
             var data = marcacaoSaida.datahora > horaMaxima ? horaMaxima : marcacaoSaida.datahora;
             return (int)(data - marcacaoEntrada.datahora).TotalMinutes;
-        }  
+        }
     }
 
     public static class StaticMethodsHelper
@@ -185,10 +187,11 @@ namespace GI.ControlePonto.Business
             return pontoPares;
         }
 
-        public static HelperPares PegaParMaisProximo(this IList<HelperPares> helper, string hora) 
+        public static HelperPares PegaParMaisProximo(this IList<HelperPares> helper, string hora)
         {
-            var diffs = helper.Select(x=> {
-                var diff = new 
+            var diffs = helper.Select(x =>
+            {
+                var diff = new
                 {
                     entradaDiff = x.marcacaoEntrada == null ? null : (int?)Calculadora.HorasparaMinuto(Calculadora.DiferencaHoras(Calculadora.PegaHoras(x.marcacaoEntrada.datahora), hora)),
                     saidaDiff = x.marcacaoSaida == null ? null : (int?)Calculadora.HorasparaMinuto(Calculadora.DiferencaHoras(Calculadora.PegaHoras(x.marcacaoSaida.datahora), hora)),
@@ -199,32 +202,33 @@ namespace GI.ControlePonto.Business
                 return diff;
             });
 
-            var result = diffs.OrderBy(x=> x.entradaDiff.HasValue ? x.entradaDiff.Value : x.saidaDiff.Value).FirstOrDefault();
-            return helper.FirstOrDefault(x=> x.marcacaoEntrada?.IDMarcacao == result.marcacaoEntradaId && x.marcacaoSaida.IDMarcacao == result.marcacaoSaidaId);
+            var result = diffs.OrderBy(x => x.entradaDiff.HasValue ? x.entradaDiff.Value : x.saidaDiff.Value).FirstOrDefault();
+            return helper.FirstOrDefault(x => x.marcacaoEntrada?.IDMarcacao == result.marcacaoEntradaId && x.marcacaoSaida.IDMarcacao == result.marcacaoSaidaId);
         }
 
         public static int[] PegaDiferencaemMinutosRange(this IList<HelperPares> helper, DateTime inicio, DateTime fim)
         {
-            var range = helper.Where((x) => {
+            var range = helper.Where((x) =>
+            {
                 return (x.marcacaoEntrada != null && x.marcacaoSaida != null) &&
                     (inicio <= x.GetMenorMarcacao().datahora || x.GetMaiorMarcacao().datahora <= fim) && !(x.GetMenorMarcacao().datahora == inicio && x.GetMaiorMarcacao().datahora == fim);
             });
 
-            return range.Select(x=> x.DiferencaEmMinutos()).ToArray();
+            return range.Select(x => x.DiferencaEmMinutos()).ToArray();
         }
 
         public static HelperPares PegaParPorDiferencadeIntervalos(this IList<HelperPares> helper, string carga, List<Marcacoes> exclusoes)
         {
-            var chaves = exclusoes.Select(y=>y.chaveUniqueMarc);
+            var chaves = exclusoes.Select(y => y.chaveUniqueMarc);
             var minutoscarga = Calculadora.HorasparaMinuto(carga);
-            var diffs = helper.Where(x=> !x.IsParNulo() && !(chaves.Contains(x.marcacaoEntrada.chaveUniqueMarc) || chaves.Contains(x.marcacaoSaida.chaveUniqueMarc))).Select(x=> new { diferenca = Math.Abs(x.DiferencaEmMinutos() - minutoscarga), value = x });
-            return diffs.OrderBy(x=>x.diferenca).FirstOrDefault().value;
+            var diffs = helper.Where(x => !x.IsParNulo() && !(chaves.Contains(x.marcacaoEntrada.chaveUniqueMarc) || chaves.Contains(x.marcacaoSaida.chaveUniqueMarc))).Select(x => new { diferenca = Math.Abs(x.DiferencaEmMinutos() - minutoscarga), value = x });
+            return diffs.OrderBy(x => x.diferenca).FirstOrDefault().value;
         }
 
         public static HelperPares PegaProximoPar(this IList<HelperPares> helper, HelperPares par)
         {
-            helper = helper.OrderBy(x=> x.GetMenorMarcacao().datahora).ToList();
-            
+            helper = helper.OrderBy(x => x.GetMenorMarcacao().datahora).ToList();
+
             int indexof = helper.IndexOf(par);
 
             return indexof <= helper.Count - 1 ? helper[indexof + 1] : null;
