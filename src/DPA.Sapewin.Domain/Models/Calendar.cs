@@ -6,7 +6,7 @@ using DPA.Sapewin.Domain.Entities;
 
 namespace DPA.Sapewin.Domain.Models
 {
-    public class Calendar
+    public struct Calendar
     {
         public static Calendar Build(DateTime date,
                           Schedule schedule,

@@ -27,8 +27,8 @@ namespace DPA.Sapewin.Domain.Entities
         public string FaltaDesPer2 { get; set; }
         public string AtrasoPagPer1 { get; set; }
         public string AtrasoPagPer2 { get; set; }
-        public string AtrasoDesPer2 { get; set; }
-        public string AtrasoDesPer1 { get; set; }
+        public double SecondPeriodDiscountedArrearsInMinutes { get; set; }
+        public double FirstPeriodDiscountedArrearsInMinutes { get; set; }
         public string SaidaPagPer1 { get; set; }
         public string SaidaPagPer2 { get; set; }
         public string SaidaDesPer1 { get; set; }
