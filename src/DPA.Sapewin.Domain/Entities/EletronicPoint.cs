@@ -31,8 +31,8 @@ namespace DPA.Sapewin.Domain.Entities
         public double FirstPeriodDiscountedArrearsInMinutes { get; set; }
         public string SaidaPagPer1 { get; set; }
         public string SaidaPagPer2 { get; set; }
-        public string SaidaDesPer1 { get; set; }
-        public string SaidaDesPer2 { get; set; }
+        public double FirstPeriodDiscountedWayOutInMinutes { get; set; }
+        public double SecondPeriodDiscountedWayOutInMinutes { get; set; }
         public string AdicionalPagPer1 { get; set; }
         public string AdicionalPagPer2 { get; set; }
         public string ExtraAdicPagPer1 { get; set; }

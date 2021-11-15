@@ -4,7 +4,7 @@ using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.Domain.Entities
 {
-    public class Parametros : Entity
+    public class Parameters : Entity
     {
         public Guid CompanyId { get; set; }
 
@@ -18,15 +18,15 @@ namespace DPA.Sapewin.Domain.Entities
 
         public int ArrearToleratedInSecondPeriod { get; set; }
 
-        public int ArrearJourney { get; set; }
+        public int JourneyArrear { get; set; }
 
         public Tipodesaida? TipodeSaida { get; set; }
 
-        public string SaidaTotal1P { get; set; }
+        public int WayOutToleratedInFirstPeriod { get; set; }
 
-        public string SaidaTotal2P { get; set; }
+        public int WayOutToleratedInSecondPeriod { get; set; }
 
-        public string SaidaJornada { get; set; }
+        public int JourneyWayOut { get; set; }
 
         public Tipoextra? TipoExtra { get; set; }
 

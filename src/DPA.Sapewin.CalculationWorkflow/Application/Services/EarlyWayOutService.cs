@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
 
@@ -11,93 +10,87 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
     {
 
     }
-    public class EarlyWayOutService : IEarlyWayOutService
+    public class EarlyWayOutService : CalculationBase, IEarlyWayOutService
     {
-        public Task<IEnumerable<EletronicPoint>> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups, IEnumerable<EmployeeCalendars> ecalendars)
+        public EarlyWayOutService(IAppointmentsService appointmentService) : base(appointmentService)
+        {
+
+        }
+        public IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups, IEnumerable<EmployeeCalendars> ecalendars)
         {
             foreach (var ep in eletronicPointPairsGroups)
-                yield return CalculateEarlyWayOut(ep.Key, ep,
-                    GetCalendar(
-                        GetCalendars(ep.Key, ecalendars), ep.Key));
-        }
-        private EmployeeCalendars GetCalendars(EletronicPoint ep, IEnumerable<EmployeeCalendars> ecalendars)
-            => ecalendars.FirstOrDefault(x => x.Employee.Id == ep.Id && x.Employee.CompanyId == ep.CompanyId);
-
-        private Calendar GetCalendar(EmployeeCalendars calendars, EletronicPoint ep)
-            => calendars.Calendars.FirstOrDefault(x => x.Date.Date == ep.Date.Date);
-
-        private bool IsNullPair(EletronicPointPairs epp)
-            => epp.OriginalEntry is null || epp.OriginalWayOut is null
-            || string.IsNullOrEmpty(epp.OriginalEntry.UniqueAppointmentKey)
-            || string.IsNullOrEmpty(epp.OriginalWayOut.UniqueAppointmentKey);
-
-        private IEnumerable<int> GetPerfectAppointments(Schedule schedule)
-        {
-            var result = (from p in schedule.AuxiliaryIntervals
-                          where p.DiscountInterval && p.Kind == AuxiliaryIntervalKind.Fixed
-                          select p.WayOut).ToList();
-            ;
-            result.AddRange(new int[] { schedule.Period.WayOut, schedule.Period.Entry });
-            return result;
+                yield return CalculateEarlyWayOut(ep.Key, ep);
         }
 
 
-        private async Task<EletronicPoint> CalculateEarlyWayOut(EletronicPoint ep, IEnumerable<EletronicPointPairs> epps, Calendar calendar)
+        private EletronicPoint CalculateEarlyWayOut(EletronicPoint eletronicPoint, IEnumerable<EletronicPointPairs> pairs)
         {
-            if (int.TryParse(calendar.NonScheduleReference, out int tryparse))
-            {
-                var wayOutAppointments = epps.Where(x => !IsNullPair(x)).Select(x => x.OriginalWayOut).ToList();
-                var appointments = wayOutAppointments;
-                appointments.AddRange(epps.Where(x => x.OriginalEntry is not null).Select(x => x.OriginalEntry));
+            if (eletronicPoint.Schedule is null) return eletronicPoint;
 
-                var perfectAppointments = GetPerfectAppointments(ep.Schedule);
+            var appointments = GetNotNullAppointments(pairs);
 
-                var atribuidor = new Dictionary<DateTime, DateTime>();
+            var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(eletronicPoint);
 
-                foreach (var marcacaoPerfeita in perfectAppointments)
-                {
-                    var result = await PegaMarcacao(horarioDataHora, marcacoesSaida, marcacaoPerfeita, true, marcacoesPerfeitas);
-                    if (result != null)
-                        atribuidor.Add(horarioDataHora.DatasHorario[marcacaoPerfeita], result.datahora);
-                }
+            var eintervals = GetAllWayOutApointmentsBasedInEletronicPoint(eletronicPoint, rappointments).ToArray();
 
-                var periodo1 = atribuidor.Keys.Where(x => x <= marcacaoIntervaloEntrada.datahora).ToArray();
+            var iiappointment = GetIntervalInAppointment(rappointments, appointments);
+            var ioappointment = GetIntervalOutAppointment(rappointments, appointments);
 
-                if (funcionario.IntervaloFixo)
-                    foreach (var marcacao in periodo1)
-                    {
-                        int diff = (int)(marcacao - atribuidor[marcacao]).TotalMinutes;
+            var eappointments = GetRelationAppointmetDates(appointments, eintervals);
 
-                        diff = diff > 0 ? diff : 0;
+            var fEarlyWayOut = GetPeriodEarlyWayOut(eletronicPoint, from a in eappointments
+                                                                    where a.appointment.DateHour <= iiappointment.DateHour
+                                                                    select a);
 
-                        saidaAntecipadaPer1 += diff;
-                    }
+            var sEarlyWayOut = GetPeriodEarlyWayOut(eletronicPoint, from a in eappointments
+                                                                    where a.appointment.DateHour > iiappointment.DateHour
+                                                                    select a);
 
+            return SetValuesInEletronicPoint(eletronicPoint, fEarlyWayOut, sEarlyWayOut);
+        }
+        private IEnumerable<DateTime> GetAllWayOutApointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint,
+            (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) rappointments)
+        {
+            var ax = (from aux in eletronicPoint.Schedule.AuxiliaryIntervals ?? new AuxiliaryInterval[] { }
+                      where aux.DiscountInterval && aux.Kind == AuxiliaryIntervalKind.Fixed
+                      select
+                      eletronicPoint.Date.AddMinutes(aux.WayOut)
+                              .AddDays(_appointmentsService
+                                          .GetOnlyMinutesFromDateTime(rappointments.eappointment) > aux.Entry ?
+                                              1 : 0
+                              )).ToList();
 
-                var periodo2 = atribuidor.Keys.Where(x => x > marcacaoIntervaloEntrada.datahora).ToArray();
+            ax.AddRange(new[] { rappointments.ioappointment, rappointments.wappointment });
 
-                foreach (var marcacao in periodo2)
-                {
-                    int diff = (int)(marcacao - atribuidor[marcacao]).TotalMinutes;
+            return ax;
+        }
+        private double GetPeriodEarlyWayOut(EletronicPoint eletronicPoint,
+                                              IEnumerable<RelationAppointmetDate> filteredRelationAppointmentsDates)
+        => eletronicPoint.Employee.FixedInterval
+        ? (from df in
+                (from f in
+                    (filteredRelationAppointmentsDates)
+                 select (f.appointment.DateHour - f.rdate).TotalMinutes)
+           where df > 0
+           select df).Sum()
+        : 0;
 
-                    diff = diff > 0 ? diff : 0;
+        private EletronicPoint SetValuesInEletronicPoint(EletronicPoint eletronicPoint,
+                                               double fpwayout,
+                                               double swayout)
+        {
+            fpwayout = fpwayout + swayout <
+                            eletronicPoint.Employee.Parameter.JourneyWayOut &&
+                            fpwayout < eletronicPoint.Employee.Parameter.WayOutToleratedInFirstPeriod ? fpwayout : 0;
 
-                    saidaAntecipadaPer2 += diff;
-                }
-            }
+            swayout = fpwayout + swayout <
+                            eletronicPoint.Employee.Parameter.JourneyWayOut &&
+                            swayout < eletronicPoint.Employee.Parameter.WayOutToleratedInSecondPeriod ? swayout : 0;
 
-            var totalParametros = Calculadora.HorasparaMinuto(funcionario.Parametro.SaidaJornada);
+            eletronicPoint.FirstPeriodDiscountedWayOutInMinutes = fpwayout;
+            eletronicPoint.SecondPeriodDiscountedWayOutInMinutes = swayout;
 
-            saidaAntecipadaPer1 = saidaAntecipadaPer1 + saidaAntecipadaPer2 > totalParametros ? saidaAntecipadaPer1 : 0;
-            saidaAntecipadaPer2 = saidaAntecipadaPer1 + saidaAntecipadaPer2 > totalParametros ? saidaAntecipadaPer2 : 0;
-
-            saidaAntecipadaPer1 = saidaAntecipadaPer1 > Calculadora.HorasparaMinuto(funcionario.Parametro.SaidaTotal1P) ? saidaAntecipadaPer1 : 0;
-            saidaAntecipadaPer2 = saidaAntecipadaPer2 > Calculadora.HorasparaMinuto(funcionario.Parametro.SaidaTotal2P) ? saidaAntecipadaPer2 : 0;
-
-            ponto.SaidaDesPer1 = Calculadora.MinutosparaHora(saidaAntecipadaPer1);
-            ponto.SaidaDesPer2 = Calculadora.MinutosparaHora(saidaAntecipadaPer2);
-
-            return ponto;
+            return eletronicPoint;
         }
     }
 }

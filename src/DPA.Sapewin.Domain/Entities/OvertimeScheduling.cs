@@ -11,7 +11,7 @@ namespace DPA.Sapewin.Domain.Entities
         public int Percentage { get; set; }
         public int? Additional { get; set; }
         public OvertimeSchedulingType Type { get; set; }
-        public Parametros Parameters { get; set; }
+        public Parameters Parameters { get; set; }
     }
     public enum OvertimeSchedulingType
     {

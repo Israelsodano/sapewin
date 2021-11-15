@@ -21,7 +21,7 @@ namespace DPA.Sapewin.Domain.Entities
         public Positions Position { get; set; }
         public IEnumerable<PermissoesdeFuncionarios> EmployeePermissions { get; set; }
         public Setores Sector { get; set; }
-        public Parametros Parameter { get; set; }
+        public Parameters Parameter { get; set; }
         public Department Department { get; set; }
         public Company Company { get; set; }
         public HolidayGroup HolidaysGroup { get; set; }
@@ -43,7 +43,7 @@ namespace DPA.Sapewin.Domain.Entities
         public IEnumerable<ProximityCard> ProximityCards { get; set; }
         public Scale Scale { get; set; }
     }
-    
+
     public enum EmployeeHoliday
     {
         DayOff = 1, Work = 2
