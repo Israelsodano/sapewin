@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
@@ -12,14 +13,22 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
     }
     public class EarlyWayOutService : CalculationBase, IEarlyWayOutService
     {
-        public EarlyWayOutService(IAppointmentsService appointmentService) : base(appointmentService)
+        private readonly IUnitOfWork<EletronicPoint> _eletronicPointUnit;
+        public EarlyWayOutService(IAppointmentsService appointmentService, IUnitOfWork<EletronicPoint> eletronicPointUnit) : base(appointmentService)
         {
-
+            _eletronicPointUnit = eletronicPointUnit ?? throw new ArgumentNullException(nameof(eletronicPointUnit));
         }
-        public IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups, IEnumerable<EmployeeCalendars> ecalendars)
+        public async IAsyncEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups, IEnumerable<EmployeeCalendars> ecalendars)
         {
             foreach (var ep in eletronicPointPairsGroups)
-                yield return CalculateEarlyWayOut(ep.Key, ep);
+            {
+                var celetronicPoint = CalculateEarlyWayOut(ep.Key, ep);
+
+                celetronicPoint = _eletronicPointUnit.Repository.Update(celetronicPoint);
+                await _eletronicPointUnit.SaveChangesAsync();
+
+                yield return celetronicPoint;
+            }
         }
 
 
