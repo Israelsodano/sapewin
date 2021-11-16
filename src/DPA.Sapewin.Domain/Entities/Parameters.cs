@@ -30,13 +30,13 @@ namespace DPA.Sapewin.Domain.Entities
 
         public Tipoextra? TipoExtra { get; set; }
 
-        public string ExtraTotal1P { get; set; }
+        public double TotalExtraHoursFirstPeriod { get; set; }
 
-        public string ExtraTotalIntervalo { get; set; }
+        public double TotalExtraHoursInterval { get; set; }
 
-        public string ExtraTotal2P { get; set; }
+        public double TotalExtraHoursSecondPeriod { get; set; }
 
-        public string ExtraJornada { get; set; }
+        public double JourneyExtra { get; set; }
 
         public ToleranciaGeraltipo? ToleranciaGeralTipo { get; set; }
 

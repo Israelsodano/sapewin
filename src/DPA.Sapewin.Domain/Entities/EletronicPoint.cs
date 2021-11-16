@@ -10,9 +10,9 @@ namespace DPA.Sapewin.Domain.Entities
         public Guid CompanyId { get; set; }
         public string DsrPago { get; set; }
         public string DsrDescontado { get; set; }
-        public string PagExtrapPer1 { get; set; }
-        public string PagExtrapPer2 { get; set; }
-        public string PagExtrapIntervalo { get; set; }
+        public double FirstPeriodPaidExtraHour { get; set; }
+        public double SecondPeriodPaidExtraHour { get; set; }
+        public double IntervalPaidExtraHour { get; set; }
         public string DesExtraInter { get; set; }
         public string DesExtrapPer1 { get; set; }
         public string DesExtrapPer2 { get; set; }
