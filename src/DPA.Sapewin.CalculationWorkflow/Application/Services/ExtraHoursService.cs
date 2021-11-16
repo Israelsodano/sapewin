@@ -22,8 +22,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         private EletronicPoint CalculateExtraHour(EletronicPoint eletronicPoint, IEnumerable<EletronicPointPairs> pairs)
         {
             var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(eletronicPoint);
-            var iiappointment = GetIntervalInAppointment(rappointments, pairs.SelectMany(x => x.GetAppointments()).ToList());
-            var extraPairs = GetExtraPairs(pairs, rappointments.eappointment, rappointments.wappointment, iiappointment);
+            var extraPairs = GetExtraPairs(pairs, rappointments.eappointment, rappointments.wappointment, 
+                                GetIntervalInAppointment(rappointments, pairs.SelectMany(x => x.GetAppointments()).ToList()));
 
             eletronicPoint.FirstPeriodPaidExtraHour = GetFirstExtra(extraPairs, rappointments.eappointment);
             eletronicPoint.SecondPeriodDiscountedArrearsInMinutes = GetSecondExtra(extraPairs, rappointments.wappointment);
