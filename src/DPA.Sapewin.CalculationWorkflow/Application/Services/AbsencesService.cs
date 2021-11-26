@@ -40,14 +40,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
 
         private double GetFirstPeriodAbsence(List<EletronicPointPairs> pairs, IEnumerable<EletronicPointPairs> nullPairs,
-            DateTime intervalIn, DateTime eappointment)
+            DateTime iiappointment, DateTime eappointment)
         {
-            if (!pairs.Any(x => (x.OriginalEntry ?? x.OriginalWayOut).DateHour <= intervalIn))
-                return (intervalIn - eappointment).TotalMinutes;
+            if (!pairs.Any(x => (x.OriginalEntry ?? x.OriginalWayOut).DateHour <= iiappointment))
+                return (iiappointment - eappointment).TotalMinutes;
 
 
             return (from np in nullPairs
-                    where (np.OriginalWayOut ?? np.OriginalEntry).DateHour <= intervalIn
+                    where (np.OriginalWayOut ?? np.OriginalEntry).DateHour <= iiappointment
                     select np != null && IsNullPair(np)
                         ? GetDiffBetweenPairs(np, NextPair(pairs, np))
                         : GetDiffBetweenPairs(np, np)).Sum();
@@ -67,7 +67,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
         private IEnumerable<EletronicPointPairs> OrganizePairs(EletronicPoint eletronicPoint, IEnumerable<EletronicPointPairs> pairsToOrganize, DateTime eappointment)
         => (from p in pairsToOrganize
-            where (p.OriginalEntry ?? p.OriginalWayOut).DateHour <= eappointment
+            where (p.OriginalEntry ?? p.OriginalWayOut).DateHour >= eappointment
+            orderby (p.OriginalEntry ?? p.OriginalWayOut).DateHour
             select p);
 
         private EletronicPointPairs NextPair(List<EletronicPointPairs> pairsToSearch, EletronicPointPairs currentPair)
