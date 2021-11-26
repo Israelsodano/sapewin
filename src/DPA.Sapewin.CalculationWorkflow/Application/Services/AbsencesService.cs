@@ -31,7 +31,6 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                             where IsNullPair(epair)
                             orderby (epair.OriginalEntry ?? epair.OriginalWayOut).DateHour
                             select epair;
-
             var iiappointment = GetIntervalInAppointment(rappointments, nullPairs.SelectMany(x => x.GetAppointments()).ToList());
 
             eletronicPoint.FirstPeriodDiscountedAbsencesMinutes = GetFirstPeriodAbsence(pairs, nullPairs, iiappointment.DateHour, rappointments.eappointment);
