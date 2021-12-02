@@ -50,9 +50,9 @@ namespace DPA.Sapewin.Domain.Entities
 
         public bool PgExtraAdcn { get; set; }
 
-        public string AdicionalNoturnoInicio { get; set; }
+        public int StartNightlyBonus { get; set; }
 
-        public string AdicionalNoturnoFim { get; set; }
+        public int EndNightlyBonus { get; set; }
 
         public double CalculoAdicional { get; set; }
 
@@ -112,7 +112,7 @@ namespace DPA.Sapewin.Domain.Entities
 
         public bool MostrarIntervaloSeparado { get; set; }
 
-        public bool AdcnFinaldoexpediente { get; set; }
+        public bool EndOfWorkBonus { get; set; }
 
         public bool SomaExtraAdicional { get; set; }
 
