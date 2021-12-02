@@ -7,7 +7,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface INightlyBonusService
     {
-
+        IEnumerable<EletronicPoint> CalculateNightlyBonuss(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> groups);
     }
     public class NightlyBonusService : CalculationBase, INightlyBonusService
     {
