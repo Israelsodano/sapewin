@@ -12,6 +12,23 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         public CalculationBase(IAppointmentsService appointmentsService) =>
             _appointmentsService = appointmentsService ?? throw new ArgumentNullException(nameof(appointmentsService));
 
+
+        protected double DiffInMinutes(EletronicPointPairs pair)
+        => pair.OriginalEntry is null || pair.OriginalWayOut is null
+        ? 0 : (pair.OriginalWayOut.DateHour - pair.OriginalEntry.DateHour).TotalMinutes;
+
+
+        protected double DiffMaxHourInMinutes(EletronicPointPairs pair, DateTime maxHour)
+        => pair.OriginalEntry is null || pair.OriginalWayOut is null
+        ? 0 : ((pair.OriginalWayOut.DateHour > maxHour
+            ? maxHour
+            : pair.OriginalWayOut.DateHour) - pair.OriginalEntry.DateHour).TotalMinutes;
+
+        protected double DiffMinHourInMinutes(EletronicPointPairs pair, DateTime minHour)
+        => pair.OriginalEntry is null || pair.OriginalWayOut is null
+        ? 0 : (pair.OriginalWayOut.DateHour - (pair.OriginalEntry.DateHour < minHour
+                                                 ? minHour
+                                                 : pair.OriginalEntry.DateHour)).TotalMinutes;
         protected List<Appointment> GetNotNullAppointments(IEnumerable<EletronicPointPairs> pairs)
         => (from p in pairs.SelectMany(x => x.GetAppointments())
             where p is not null
