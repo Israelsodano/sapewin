@@ -79,10 +79,10 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
 
         private double GetWorkedMinutesInFirstPeriod(IEnumerable<EletronicPointPairs> pairs, DateTime iiapointment) =>
-            pairs.Where(x=> x.OriginalWayOut.DateHour <= iiapointment).Select(x=> x.GetPeriodMinutes()).Sum();
+            pairs.Where(x=> x.HigherAppointment.DateHour <= iiapointment).Select(x=> x.GetPeriodMinutes()).Sum();
 
         private double GetWorkedMinutesInSecondPeriod(IEnumerable<EletronicPointPairs> pairs, DateTime iiapointment) =>
-            pairs.Where(x=> x.OriginalEntry.DateHour > iiapointment).Select(x=> x.GetPeriodMinutes()).Sum();
+            pairs.Where(x=> x.LowerAppointment.DateHour > iiapointment).Select(x=> x.GetPeriodMinutes()).Sum();
 
 
         private IEnumerable<EletronicPointPairs> GetOnlyPairsInDefaultWorkPeriod(IEnumerable<EletronicPointPairs> pairs,
