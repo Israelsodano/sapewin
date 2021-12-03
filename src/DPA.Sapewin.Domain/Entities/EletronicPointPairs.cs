@@ -16,9 +16,11 @@ namespace DPA.Sapewin.Domain.Entities
         public EletronicPoint EletronicPoint { get; set; }
         public Appointment OriginalEntry { get; set; }
         public Appointment OriginalWayOut { get; set; }
-        public Appointment[] GetAppointments() => new [] { OriginalEntry, OriginalWayOut };
         public double GetPeriodMinutes() => 
             OriginalEntry is null || OriginalWayOut is null ? 0 : 
             (OriginalWayOut.DateHour - OriginalEntry.DateHour).TotalMinutes;
+        public Appointment[] GetAppointments() => new[] { OriginalEntry, OriginalWayOut };
+        public Appointment HigherAppointment { get => OriginalWayOut ?? OriginalEntry; }
+        public Appointment LowerAppointment { get => OriginalEntry ?? OriginalWayOut; }
     }
 }

@@ -22,7 +22,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         private EletronicPoint CalculateExtraHour(EletronicPoint eletronicPoint, IEnumerable<EletronicPointPairs> pairs)
         {
             var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(eletronicPoint);
-            var extraPairs = GetExtraPairs(pairs, rappointments.eappointment, rappointments.wappointment, 
+            var extraPairs = GetExtraPairs(pairs, rappointments.eappointment, rappointments.wappointment,
                                 GetIntervalInAppointment(rappointments, pairs.SelectMany(x => x.GetAppointments()).ToList()));
 
             eletronicPoint.FirstPeriodPaidExtraHour = GetFirstExtra(extraPairs, rappointments.eappointment);
@@ -76,21 +76,6 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             where (ep.OriginalEntry ?? ep.OriginalWayOut).DateHour >= rappointments.eappointment
                   && (ep.OriginalWayOut ?? ep.OriginalEntry).DateHour <= rappointments.wappointment
             select ep).Sum(ep => DiffInMinutes(ep));
-        private double DiffInMinutes(EletronicPointPairs extraPair)
-        => extraPair.OriginalEntry is null || extraPair.OriginalWayOut is null
-        ? 0 : (extraPair.OriginalWayOut.DateHour - extraPair.OriginalEntry.DateHour).TotalMinutes;
 
-
-        private double DiffMaxHourInMinutes(EletronicPointPairs extraPair, DateTime maxHour)
-        => extraPair.OriginalEntry is null || extraPair.OriginalWayOut is null
-        ? 0 : ((extraPair.OriginalWayOut.DateHour > maxHour
-            ? maxHour
-            : extraPair.OriginalWayOut.DateHour) - extraPair.OriginalEntry.DateHour).TotalMinutes;
-
-        private double DiffMinHourInMinutes(EletronicPointPairs extraPair, DateTime minHour)
-        => extraPair.OriginalEntry is null || extraPair.OriginalWayOut is null
-        ? 0 : (extraPair.OriginalWayOut.DateHour - (extraPair.OriginalEntry.DateHour < minHour
-                                                 ? minHour
-                                                 : extraPair.OriginalEntry.DateHour)).TotalMinutes;
     }
 }
