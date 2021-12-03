@@ -16,10 +16,12 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         => (from p in pairs.SelectMany(x => x.GetAppointments())
             where p is not null
             select p).ToList();
+            
         protected bool IsNullPair(EletronicPointPairs pair)
         => (pair.OriginalEntry is null || pair.OriginalWayOut is null)
-        || (string.IsNullOrEmpty(pair.OriginalEntry.UniqueAppointmentKey)
-        || string.IsNullOrEmpty(pair.OriginalWayOut.UniqueAppointmentKey));
+        || (string.IsNullOrEmpty(pair.OriginalEntry?.UniqueAppointmentKey)
+        || string.IsNullOrEmpty(pair.OriginalWayOut?.UniqueAppointmentKey));
+
         protected IEnumerable<RelationAppointmetDate> GetRelationAppointmetDates(List<Appointment> appointments, DateTime[] intervals)
         => from ea in intervals
            select new RelationAppointmetDate(_appointmentsService.GetBestAppointment(ea,

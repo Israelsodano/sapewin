@@ -19,8 +19,8 @@ namespace DPA.Sapewin.Domain.Entities
         public int? IDHorario { get; set; }
         public DateTime Date { get; set; }
         public bool Tratado { get; set; }
-        public string HoraPagPer1 { get; set; }
-        public string HoraPagPer2 { get; set; }
+        public int PaidHoursFirstPeriodInMinutes { get; set; }
+        public int PaidHoursSecondPeriodInMinutes { get; set; }
         public string FaltaPagPer1 { get; set; }
         public string FaltaPagPer2 { get; set; }
         public double FirstPeriodDiscountedAbsencesMinutes { get; set; }
