@@ -8,8 +8,6 @@ namespace DPA.Sapewin.Domain.Entities
         public Guid EletronicPointId { get; set; }
         public Guid CompanyId { get; set; }
         public Guid EmployeeId { get; set; }
-        public DateTime? DataHoraEntrada { get; set; }
-        public DateTime? DataHoraSaida { get; set; }
         public Guid? EntryAppointmentId { get; set; }
         public Guid? WayOutAppointmentId { get; set; }
         public string AbrMotivoAbonoEnt { get; set; }
@@ -18,6 +16,9 @@ namespace DPA.Sapewin.Domain.Entities
         public EletronicPoint EletronicPoint { get; set; }
         public Appointment OriginalEntry { get; set; }
         public Appointment OriginalWayOut { get; set; }
+        public double GetPeriodMinutes() => 
+            OriginalEntry is null || OriginalWayOut is null ? 0 : 
+            (OriginalWayOut.DateHour - OriginalEntry.DateHour).TotalMinutes;
         public Appointment[] GetAppointments() => new[] { OriginalEntry, OriginalWayOut };
         public Appointment HigherAppointment { get => OriginalWayOut ?? OriginalEntry; }
         public Appointment LowerAppointment { get => OriginalEntry ?? OriginalWayOut; }
