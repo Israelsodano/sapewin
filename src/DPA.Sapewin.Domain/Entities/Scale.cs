@@ -18,8 +18,8 @@ namespace DPA.Sapewin.Domain.Entities
     }
     public enum ScalesType
     {
-        Semanal = 1, Revezamento = 2, CargaSemanal = 3, Livre = 4
+        Weekly = 1, Relay = 2, WeeklyLoad = 3, Free = 4
     };
 
-    
+
 }

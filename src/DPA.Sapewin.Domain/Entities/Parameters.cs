@@ -66,13 +66,13 @@ namespace DPA.Sapewin.Domain.Entities
 
         public string ReduzidoAdiciona { get; set; }
 
-        public string DsrSabado { get; set; }
+        public string SaturdayDsr { get; set; }
 
-        public string DsrDomingo { get; set; }
+        public string SundayDsr { get; set; }
 
-        public string DsrFeriado { get; set; }
+        public string HolidayDsr { get; set; }
 
-        public string DsrFolga { get; set; }
+        public string DayOffDsr { get; set; }
 
         public bool ControleAutomaticoDsr { get; set; }
 

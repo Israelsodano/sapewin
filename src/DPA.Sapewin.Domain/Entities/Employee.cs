@@ -42,6 +42,12 @@ namespace DPA.Sapewin.Domain.Entities
         public IEnumerable<OccasionalSchedule> OccasionalSchedules { get; set; }
         public IEnumerable<ProximityCard> ProximityCards { get; set; }
         public Scale Scale { get; set; }
+
+        public bool Equals(Employee employee)
+            => this.Id == employee.Id && this.CompanyId == employee.CompanyId;
+
+        public bool Belongs(EletronicPoint ep)
+            => this.Id == ep.EmployeeId && this.CompanyId == ep.CompanyId;
     }
 
     public enum EmployeeHoliday

@@ -55,7 +55,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
             if (processingType == ProcessingTypes.Recalculate)
             {
-                _unitOfWorkAppointments.Repository.Delete(x => 
+                _unitOfWorkAppointments.Repository.Delete(x =>
                     appointments.Any(y => y.OriginalEntry.Id == x.Id || y.OriginalWayOut.Id == x.Id));
                 await _unitOfWorkAppointments.SaveChangesAsync();
                 _logger.LogInformation("Deleted appointments");
@@ -63,18 +63,18 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             }
         }
         private Expression<Func<EletronicPoint, bool>> ChooseExpression(DateTime startDate, DateTime endDate,
-            ProcessingTypes processingType, IEnumerable<Employee> employees) 
+            ProcessingTypes processingType, IEnumerable<Employee> employees)
         => processingType switch
         {
             ProcessingTypes.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))
+                    && (employees.Any(y => y.Belongs(x)))
                     && !x.Tratado),
 
             ProcessingTypes.Recalculate => (x => (startDate <= x.Date && x.Date <= endDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
+                    && (employees.Any(y => y.Belongs(x)))),
 
             ProcessingTypes.Reanalyze => (x => (startDate <= x.Date && x.Date <= endDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
+                    && (employees.Any(y => y.Belongs(x)))),
 
             _ => throw new NotImplementedException()
         };
