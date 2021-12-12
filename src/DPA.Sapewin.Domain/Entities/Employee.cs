@@ -43,11 +43,16 @@ namespace DPA.Sapewin.Domain.Entities
         public IEnumerable<ProximityCard> ProximityCards { get; set; }
         public Scale Scale { get; set; }
 
+<<<<<<< HEAD
         public bool Equals(Employee employee)
             => this.Id == employee.Id && this.CompanyId == employee.CompanyId;
 
         public bool Belongs(EletronicPoint ep)
             => this.Id == ep.EmployeeId && this.CompanyId == ep.CompanyId;
+=======
+        public bool Match(Employee employee)
+        => this.CompanyId == employee.CompanyId && this.Id == employee.Id;
+>>>>>>> main
     }
 
     public enum EmployeeHoliday
