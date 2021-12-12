@@ -773,6 +773,9 @@ namespace GI.ControlePonto.Business
 
             var viradaSemana = de_paraDias[funcionario.Escala.ViradaSemana];
 
+            // data de inicio seja diferente do domingo caso virada do funcionario seja no sabado 
+            // se não data de inicio seja diferente da virada da semana mais um dia
+
             while ((int)dataini.DayOfWeek != (viradaSemana == DayOfWeek.Saturday ? (int)DayOfWeek.Sunday : ((int)viradaSemana) + 1))
             {
                 dataini = dataini.AddDays(-1);

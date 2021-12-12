@@ -24,7 +24,7 @@ namespace DPA.Sapewin.Domain.Entities
         public string FaltaPagPer1 { get; set; }
         public string FaltaPagPer2 { get; set; }
         public double FirstPeriodDiscountedAbsencesMinutes { get; set; }
-        public string FaltaDesPer2 { get; set; }
+        public double SecondPeriodDiscountedAbsencesMinutes { get; set; }
         public string AtrasoPagPer1 { get; set; }
         public string AtrasoPagPer2 { get; set; }
         public double SecondPeriodDiscountedArrearsInMinutes { get; set; }
@@ -47,6 +47,19 @@ namespace DPA.Sapewin.Domain.Entities
         public Schedule Schedule { get; set; }
         public Employee Employee { get; set; }
 
+
+        public double[] GetAbsences() => new[]
+        {
+            this.FirstPeriodDiscountedAbsencesMinutes,
+            this.SecondPeriodDiscountedAbsencesMinutes
+        };
+        public double[] GetArrears() => new[]
+        {
+            this.FirstPeriodDiscountedArrearsInMinutes,
+            this.SecondPeriodDiscountedArrearsInMinutes,
+            this.FirstPeriodDiscountedWayOutInMinutes,
+            this.SecondPeriodDiscountedWayOutInMinutes
+        };
         public const string DayOff = "DayOff";
         public const string Saturday = "Saturday";
         public const string Sunday = "Sunday";
