@@ -66,15 +66,6 @@ namespace DPA.Sapewin.Domain.Entities
 
         public string ReduzidoAdiciona { get; set; }
 
-<<<<<<< HEAD
-        public string SaturdayDsr { get; set; }
-
-        public string SundayDsr { get; set; }
-
-        public string HolidayDsr { get; set; }
-
-        public string DayOffDsr { get; set; }
-=======
         public double SaturdayDsr { get; set; }
 
         public double SundayDsr { get; set; }
@@ -82,7 +73,6 @@ namespace DPA.Sapewin.Domain.Entities
         public double HolidayDsr { get; set; }
 
         public double DayOffDsr { get; set; }
->>>>>>> main
 
         public bool ControleAutomaticoDsr { get; set; }
 

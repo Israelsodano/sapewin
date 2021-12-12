@@ -18,36 +18,13 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
         }
         private EletronicPoint CalculateDsr(Employee employee, IEnumerable<EletronicPoint> eletronicPoints,
-<<<<<<< HEAD
-        in IEnumerable<EmployeeCalendars> calendars, DateTime startDate, DateTime endDate)
-=======
             in IEnumerable<EmployeeCalendars> calendars, DateTime startDate, DateTime endDate)
->>>>>>> main
         {
 
             var calendar = calendars.FirstOrDefault(x => x.Employee.Equals(employee.Scale));
             SetStartDate(ref startDate, employee);
             SetEndDate(ref endDate, employee);
 
-<<<<<<< HEAD
-            var weeks = (int)(endDate - startDate).TotalDays / 6;
-
-            for (var i = 0; i < weeks; i++)
-            {
-                var endWeekDate = startDate.AddDays(7);
-                var weekPoints = eletronicPoints.Where(x => x.Date >= startDate && x.Date <= endWeekDate);
-
-
-            }
-
-        }
-
-        private decimal Calculate(EletronicPoint point, EmployeeCalendars employeeCalendars)
-        {
-
-        }
-        private void SetStartDate(ref DateTime startDate, in Employee employee)
-=======
             var weeks = CalculateWeeks(startDate, endDate, eletronicPoints, calendar).ToArray();
 
         }
@@ -74,14 +51,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                         totalArrearsInMinutes += day.arrearsAmount;
                         totalAbsencesInMinutes += day.absencesAmount;
 
-                        if(day.absencesAmount > 0)
+                        if (day.absencesAmount > 0)
                             absentDaysAmount++;
-                        
-                        if(day.arrearsAmount > 0)
+
+                        if (day.arrearsAmount > 0)
                             arrearsDaysAmount++;
                     }
 
-                if(day.isDsr && !day.)
+                if (day.isDsr && !day.)
             }
         }
         private IEnumerable<IEnumerable<(double valorDsr, bool isDsr, bool isAbsentOrArrear,
@@ -159,22 +136,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         private static bool SomePeriodEqualsZero(double[] absences, double[] arrears)
         => absences.Any(x => x != 0) || arrears.Any(x => x != 0);
         private static void SetStartDate(ref DateTime startDate, in Employee employee)
->>>>>>> main
         => startDate = startDate.DayOfWeek == employee.Scale.Turn.WeekTurn.Next()
             ? startDate
             : startDate.AddDays(startDate.DayOfWeek < employee.Scale.Turn.WeekTurn
                 ? startDate.DayOfWeek - employee.Scale.Turn.WeekTurn
                 : employee.Scale.Turn.WeekTurn - startDate.DayOfWeek);
 
-<<<<<<< HEAD
-        private void SetEndDate(ref DateTime endDate, in Employee employee)
-        => endDate = endDate.DayOfWeek == employee.Scale.Turn.WeekTurn
-                   ? endDate
-                   : endDate.AddDays(Math.Abs(endDate.DayOfWeek - employee.Scale.Turn.WeekTurn));
-=======
         private static void SetEndDate(ref DateTime endDate, in Employee employee)
         => endDate = endDate.DayOfWeek == employee.Scale.Turn.WeekTurn
                    ? endDate : endDate.AddDays(Math.Abs(endDate.DayOfWeek - employee.Scale.Turn.WeekTurn));
->>>>>>> main
     }
 }
