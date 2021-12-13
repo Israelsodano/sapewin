@@ -55,15 +55,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
             if (processingType == ProcessingTypes.Recalculate)
             {
-                _unitOfWorkAppointments.Repository.Delete(x => 
+                _unitOfWorkAppointments.Repository.Delete(x =>
                     appointments.Any(y => y.OriginalEntry.Id == x.Id || y.OriginalWayOut.Id == x.Id));
                 await _unitOfWorkAppointments.SaveChangesAsync();
                 _logger.LogInformation("Deleted appointments");
-
             }
         }
         private Expression<Func<EletronicPoint, bool>> ChooseExpression(DateTime startDate, DateTime endDate,
-            ProcessingTypes processingType, IEnumerable<Employee> employees) 
+            ProcessingTypes processingType, IEnumerable<Employee> employees)
         => processingType switch
         {
             ProcessingTypes.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
