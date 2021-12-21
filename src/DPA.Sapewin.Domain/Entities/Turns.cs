@@ -17,16 +17,9 @@ namespace DPA.Sapewin.Domain.Entities
     {
         Segunda = 1, Terca = 2, Quarta = 3, Quinta = 4, Sexta = 5, Sabado = 6, Domingo = 7
     };
-<<<<<<< HEAD
     public static class DayOfWeekExtensions
     {
         public static DayOfWeek Next(this DayOfWeek dayOfWeek)
         => dayOfWeek == DayOfWeek.Saturday ? DayOfWeek.Sunday : dayOfWeek + 1;
-=======
-
-    public static class DayOfWeekExtensions
-    {
-        public static DayOfWeek Next(this DayOfWeek day) => day == DayOfWeek.Saturday ? DayOfWeek.Sunday : day + 1;
->>>>>>> main
     }
 }
