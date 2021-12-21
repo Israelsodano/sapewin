@@ -72,7 +72,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                     Appointments = pappointments,
                     Schedule = rschedules.refschedule,
                     EmployeeId = employeeCalendars.Employee.Id,
-                    Employee = employeeCalendars.Employee
+                    Employee = employeeCalendars.Employee,
+                    NonScheduleReference = calendar.NonScheduleReference
                 };
             }
         }

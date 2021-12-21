@@ -46,7 +46,7 @@ namespace DPA.Sapewin.Domain.Entities
         public IEnumerable<Appointment> Appointments { get; set; }
         public Schedule Schedule { get; set; }
         public Employee Employee { get; set; }
-
+        public string NonScheduleReference { get; set; }
 
         public double[] GetAbsences() => new[]
         {

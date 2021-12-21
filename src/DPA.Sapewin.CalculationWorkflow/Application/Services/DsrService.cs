@@ -12,22 +12,25 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
     }
     public class DsrService : IDsrService
     {
-        public IEnumerable<EletronicPoint> CalculateDsrs(IEnumerable<IGrouping<Employee, EletronicPoint>> groups,
-            IEnumerable<EmployeeCalendars> calendars, DateTime startDate, DateTime endDate)
+        public IEnumerable<EletronicPoint> CalculateDsrs(IEnumerable<IGrouping<Employee, EletronicPoint>> groups)
         {
+            return null;
+        }
+
+        private EletronicPoint CalculateDsr(IGrouping<Employee, EletronicPoint> eletronicPointsByEmployee)
+        {
+            DateTime startDate = eletronicPointsByEmployee.FirstOrDefault().Date,
+                     endDate = eletronicPointsByEmployee.LastOrDefault().Date;
+
+            SetStartDate(ref startDate, eletronicPointsByEmployee.Key);
+            SetEndDate(ref endDate, eletronicPointsByEmployee.Key);
+
+            var weeks = CalculateWeeks(startDate, endDate, eletronicPointsByEmployee).ToArray();
+
+            return null;
 
         }
-        private EletronicPoint CalculateDsr(Employee employee, IEnumerable<EletronicPoint> eletronicPoints,
-            in IEnumerable<EmployeeCalendars> calendars, DateTime startDate, DateTime endDate)
-        {
-
-            var calendar = calendars.FirstOrDefault(x => x.Employee.Equals(employee.Scale));
-            SetStartDate(ref startDate, employee);
-            SetEndDate(ref endDate, employee);
-
-            var weeks = CalculateWeeks(startDate, endDate, eletronicPoints, calendar).ToArray();
-
-        }
+        
         private IEnumerable<IEnumerable<(double valorDsr, bool isDsr, bool isAbsentOrArrear, double absencesAmount, double arrearsAmount)>> HandleWeeks(
             IEnumerable<IEnumerable<(double valorDsr, bool isDsr, bool isAbsentOrArrear, double absencesAmount, double arrearsAmount)>> weeks)
         {
@@ -63,12 +66,13 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
         private IEnumerable<IEnumerable<(double valorDsr, bool isDsr, bool isAbsentOrArrear,
             double absencesAmount, double arrearsAmount)>>
-        CalculateWeeks(DateTime startDate, DateTime endDate,
-            IEnumerable<EletronicPoint> eletronicPoints, EmployeeCalendars calendar)
+        CalculateWeeks(DateTime startDate, 
+                       DateTime endDate,
+                       IEnumerable<EletronicPoint> eletronicPoints)
         {
             var weeks = (int)(endDate - startDate).TotalDays / 6;
-
             var startWeekDate = startDate;
+
             for (var i = 0; i < weeks; i++)
             {
                 var endWeekDate = startWeekDate.AddDays(7);
@@ -76,67 +80,65 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
 
                 startWeekDate = endWeekDate.AddDays(1);
-                yield return CalculateWeek(weekPoints, calendar);
+                yield return CalculateWeek(weekPoints);
             }
         }
 
         private IEnumerable<(double valorDsr, bool isDsr, bool isAbsentOrArrear,
             double absencesAmount, double arrearsAmount)>
-        CalculateWeek(IEnumerable<EletronicPoint> weekPoints, EmployeeCalendars employeeCalendar)
+        CalculateWeek(IEnumerable<EletronicPoint> weekPoints)
         {
             foreach (var point in weekPoints)
-                yield return CalculateDay(point, employeeCalendar);
+                yield return CalculateDay(point);
         }
+        
         private (double valorDsr, bool isDsr, bool isAbsentOrArrear,
             double absencesAmount, double arrearsAmount)
-        CalculateDay(EletronicPoint point, EmployeeCalendars employeeCalendars)
+        CalculateDay(EletronicPoint point)
         {
             double[] absences = point.GetAbsences();
             double[] arrears = point.GetArrears();
             return true switch
             {
-                true when Saturday(employeeCalendars, point)
-                    => (employeeCalendars.Employee.Parameter.SaturdayDsr, true,
+                true when Saturday(point)
+                    => (point.Employee.Parameter.SaturdayDsr, true,
                     SomePeriodEqualsZero(absences, arrears), absences.Sum(), arrears.Sum()),
 
-                true when DayOff(employeeCalendars, point)
-                    => (employeeCalendars.Employee.Parameter.DayOffDsr, true,
+                true when DayOff(point)
+                    => (point.Employee.Parameter.DayOffDsr, true,
                     SomePeriodEqualsZero(absences, arrears), absences.Sum(), arrears.Sum()),
 
-                true when Holiday(employeeCalendars, point)
-                    => (employeeCalendars.Employee.Parameter.HolidayDsr, true,
+                true when Holiday(point)
+                    => (point.Employee.Parameter.HolidayDsr, true,
                     SomePeriodEqualsZero(absences, arrears), absences.Sum(), arrears.Sum()),
 
-                true when Sunday(employeeCalendars, point)
-                    => (employeeCalendars.Employee.Parameter.SundayDsr, true,
+                true when Sunday(point)
+                    => (point.Employee.Parameter.SundayDsr, true,
                     SomePeriodEqualsZero(absences, arrears), absences.Sum(), arrears.Sum()),
 
                 _ => throw new ArgumentNullException()
             };
         }
-        private static bool Saturday(EmployeeCalendars employeeCalendars, EletronicPoint point)
-        => employeeCalendars.Employee.Parameter.SaturdayDsr != 0
-            && employeeCalendars.Calendars.FirstOrDefault(x => x.Date == point.Date)
-            .NonScheduleReference == EletronicPoint.Saturday;
-        private static bool DayOff(EmployeeCalendars employeeCalendars, EletronicPoint point)
-        => employeeCalendars.Employee.Parameter.DayOffDsr != 0
-            && employeeCalendars.Calendars.FirstOrDefault(x => x.Date == point.Date)
-            .NonScheduleReference == EletronicPoint.DayOff;
+        private static bool Saturday(EletronicPoint point)
+        => point.Employee.Parameter.SaturdayDsr != 0
+            && point.NonScheduleReference == EletronicPoint.Saturday;
+        private static bool DayOff(EletronicPoint point)
+        => point.Employee.Parameter.DayOffDsr != 0
+            && point.NonScheduleReference == EletronicPoint.DayOff;
 
-        private static bool Holiday(EmployeeCalendars employeeCalendars, EletronicPoint point)
-        => employeeCalendars.Employee.Parameter.HolidayDsr != 0
-            && employeeCalendars.Calendars.FirstOrDefault(x => x.Date == point.Date)
-            .NonScheduleReference == EletronicPoint.Holiday;
+        private static bool Holiday(EletronicPoint point)
+        => point.Employee.Parameter.HolidayDsr != 0
+            && point.NonScheduleReference == EletronicPoint.Holiday;
 
-        private static bool Sunday(EmployeeCalendars employeeCalendars, EletronicPoint point)
-        => employeeCalendars.Employee.Parameter.SundayDsr != 0
-            && employeeCalendars.Calendars.FirstOrDefault(x => x.Date == point.Date)
-            .NonScheduleReference == EletronicPoint.Sunday;
+        private static bool Sunday(EletronicPoint point)
+        => point.Employee.Parameter.SundayDsr != 0
+            && point.NonScheduleReference == EletronicPoint.Sunday;
 
         private static bool SomePeriodEqualsZero(double[] absences, double[] arrears)
         => absences.Any(x => x != 0) || arrears.Any(x => x != 0);
-        private static void SetStartDate(ref DateTime startDate, in Employee employee)
-        => startDate = startDate.DayOfWeek == employee.Scale.Turn.WeekTurn.Next()
+
+        private static DateTime SetStartDate(ref DateTime startDate, in Employee employee)
+        =>  startDate = startDate.DayOfWeek == employee.Scale.Turn.WeekTurn.Next()
             ? startDate
             : startDate.AddDays(startDate.DayOfWeek < employee.Scale.Turn.WeekTurn
                 ? startDate.DayOfWeek - employee.Scale.Turn.WeekTurn
