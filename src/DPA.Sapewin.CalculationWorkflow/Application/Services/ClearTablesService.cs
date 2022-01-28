@@ -68,7 +68,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         {
             ProcessingTypes.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Belongs(x)))
-                    && !x.Tratado),
+                    && !x.Trated),
 
             ProcessingTypes.Recalculate => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Belongs(x)))),

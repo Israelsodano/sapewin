@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
@@ -13,6 +14,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
     {
         public AbsencesService(IAppointmentsService appointmentsService) : base(appointmentsService)
         { }
+        
         public IEnumerable<EletronicPoint> CalculateAbsences(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eppGroups)
         {
             foreach (var ep in eppGroups)
@@ -22,8 +24,9 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             }
         }
 
-        private EletronicPoint CalculateAbsence(EletronicPoint eletronicPoint, List<EletronicPointPairs> pairs,
-            (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) rappointments)
+        private EletronicPoint CalculateAbsence(EletronicPoint eletronicPoint, 
+                                                List<EletronicPointPairs> pairs,
+                                                AppointmentsRecord rappointments)
         {
             if (eletronicPoint.Schedule is null) return eletronicPoint;
 

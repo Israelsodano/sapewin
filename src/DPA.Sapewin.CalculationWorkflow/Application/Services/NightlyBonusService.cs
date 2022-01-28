@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
@@ -44,43 +45,39 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         private double SumBonusPayments(EletronicPoint ep)
         => ep.ExtraBonusIntervalPayment + ep.FirstPeriodBonusPayment + ep.SecondPeriodBonusPayment;
         private double GetSecondPeriodBonus(in IEnumerable<EletronicPointPairs> totalNightlyBonusPairs,
-            (DateTime entryAppointmentDate, DateTime intervalInAppointmentDate,
-            DateTime intervalOutAppointmentDate, DateTime wayOutAppointmentDate) rappointments)
+                                            AppointmentsRecord rappointments)
         => (from pair in totalNightlyBonusPairs
-            where pair.HigherAppointment.DateHour >= rappointments.intervalOutAppointmentDate
-                && pair.HigherAppointment.DateHour <= rappointments.wayOutAppointmentDate
+            where pair.HigherAppointment.DateHour >= rappointments.ioappointment
+                && pair.HigherAppointment.DateHour <= rappointments.wappointment
             select pair)
             .Sum(x => DiffInMinutes(x));
         private double GetFirstPeriodBonus(in IEnumerable<EletronicPointPairs> totalNightlyBonusPairs,
-            (DateTime entryAppointmentDate, DateTime intervalInAppointmentDate,
-            DateTime intervalOutAppointmentDate, DateTime wayOutAppointmentDate) rappointments)
+                                           AppointmentsRecord rappointments)
         => (from pair in totalNightlyBonusPairs
-            where pair.HigherAppointment.DateHour >= rappointments.entryAppointmentDate
-                && pair.HigherAppointment.DateHour <= rappointments.intervalInAppointmentDate
+            where pair.HigherAppointment.DateHour >= rappointments.eappointment
+                && pair.HigherAppointment.DateHour <= rappointments.iiappointment
             select pair)
             .Sum(x => DiffInMinutes(x));
         private double GetExtraBonusInterval(in IEnumerable<EletronicPointPairs> extraBonusPairs,
-            (DateTime entryAppointmentDate, DateTime intervalInAppointmentDate,
-            DateTime intervalOutAppointmentDate, DateTime wayOutAppointmentDate) rappointments)
+                                             AppointmentsRecord rappointments)
         => (from pair in extraBonusPairs
-            where pair.LowerAppointment.DateHour >= rappointments.intervalInAppointmentDate
-                && pair.HigherAppointment.DateHour <= rappointments.wayOutAppointmentDate
+            where pair.LowerAppointment.DateHour >= rappointments.iiappointment
+                && pair.HigherAppointment.DateHour <= rappointments.wappointment
             select pair)
             .Sum(x => DiffInMinutes(x));
         private double GetExtraBonusSecondPeriod(in IEnumerable<EletronicPointPairs> extraBonusPairs,
-            (DateTime entryAppointmentDate, DateTime intervalInAppointmentDate,
-            DateTime intervalOutAppointmentDate, DateTime wayOutAppointmentDate) rappointments)
+                                                 AppointmentsRecord rappointments)
         => (from pair in extraBonusPairs
-            where pair.LowerAppointment.DateHour >= rappointments.intervalOutAppointmentDate
+            where pair.LowerAppointment.DateHour >= rappointments.ioappointment
             select pair)
-            .Sum(x => DiffMinHourInMinutes(x, rappointments.wayOutAppointmentDate));
+            .Sum(x => DiffMinHourInMinutes(x, rappointments.wappointment));
+            
         private double GetExtraBonusFirstPeriod(in IEnumerable<EletronicPointPairs> extraBonusPairs,
-            (DateTime entryAppointmentDate, DateTime intervalInAppointmentDate,
-            DateTime intervalOutAppointmentDate, DateTime wayOutAppointmentDate) rappointments)
+                                                AppointmentsRecord rappointments)
         => (from pair in extraBonusPairs
-            where pair.HigherAppointment.DateHour <= rappointments.intervalInAppointmentDate
+            where pair.HigherAppointment.DateHour <= rappointments.iiappointment
             select pair)
-            .Sum(x => DiffMaxHourInMinutes(x, rappointments.entryAppointmentDate));
+            .Sum(x => DiffMaxHourInMinutes(x, rappointments.eappointment));
         private DateTime GetStartBonusDate(in EletronicPoint ep)
         => ep.Employee.Parameter.StartNightlyBonus < ep.Schedule.Period.Entry
             ? ep.Date.AddMinutes(ep.Employee.Parameter.StartNightlyBonus).AddDays(1)
@@ -105,12 +102,12 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
 
         private IEnumerable<EletronicPointPairs> GetExtraBonusPairs(in IEnumerable<EletronicPointPairs> totalNightlyBonusPairs,
-            (DateTime entryAppointmentDate, DateTime intervalInAppointmentDate, DateTime intervalOutAppointmentDate, DateTime wayOutAppointmentDate) rappointments)
+                                                                    AppointmentsRecord rappointments)
         => from pair in totalNightlyBonusPairs
-           where pair.LowerAppointment.DateHour < rappointments.entryAppointmentDate
-            || (pair.OriginalWayOut ?? pair.OriginalEntry).DateHour > rappointments.wayOutAppointmentDate
-            || ((pair.LowerAppointment.DateHour >= rappointments.intervalInAppointmentDate
-            && pair.HigherAppointment.DateHour <= rappointments.intervalOutAppointmentDate))
+           where pair.LowerAppointment.DateHour < rappointments.eappointment
+            || (pair.OriginalWayOut ?? pair.OriginalEntry).DateHour > rappointments.wappointment
+            || ((pair.LowerAppointment.DateHour >= rappointments.iiappointment
+            && pair.HigherAppointment.DateHour <= rappointments.ioappointment))
            select pair;
     }
 }

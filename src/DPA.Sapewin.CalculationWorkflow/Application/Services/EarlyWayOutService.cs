@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
 
@@ -46,7 +47,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             return SetValuesInEletronicPoint(eletronicPoint, fEarlyWayOut, sEarlyWayOut);
         }
         private IEnumerable<DateTime> GetAllWayOutApointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint,
-            (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) rappointments)
+                                                                                   AppointmentsRecord rappointments)
         {
             var ax = (from aux in eletronicPoint.Schedule.AuxiliaryIntervals ?? new AuxiliaryInterval[] { }
                       where aux.DiscountInterval && aux.Kind == AuxiliaryIntervalKind.Fixed
@@ -55,9 +56,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                               .AddDays(_appointmentsService
                                           .GetOnlyMinutesFromDateTime(rappointments.eappointment) > aux.Entry ?
                                               1 : 0
-                              )).ToList();
-
-            ax.AddRange(new[] { rappointments.ioappointment, rappointments.wappointment });
+                              )).Union(new[] { rappointments.ioappointment, rappointments.wappointment });
 
             return ax;
         }

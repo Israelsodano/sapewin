@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
@@ -70,8 +71,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             where (ep.OriginalWayOut ?? ep.OriginalEntry).DateHour > wappointment
             select ep).Sum(ep => DiffMinHourInMinutes(ep, wappointment));
 
-        private double GetExtraInterval(IEnumerable<EletronicPointPairs> extraPairs, (DateTime eappointment,
-            DateTime iiappointment, DateTime ioappointment, DateTime wappointment) rappointments)
+        private double GetExtraInterval(IEnumerable<EletronicPointPairs> extraPairs, 
+                                        AppointmentsRecord rappointments)
         => (from ep in extraPairs
             where (ep.OriginalEntry ?? ep.OriginalWayOut).DateHour >= rappointments.eappointment
                   && (ep.OriginalWayOut ?? ep.OriginalEntry).DateHour <= rappointments.wappointment

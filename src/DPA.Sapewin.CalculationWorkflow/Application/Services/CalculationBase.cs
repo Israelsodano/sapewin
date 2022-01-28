@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
 
@@ -45,29 +46,23 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                                            ref appointments,
                                                            true,
                                                            intervals), ea);
-        protected Appointment GetIntervalInAppointment((DateTime eappointment,
-                                                  DateTime iiapointment,
-                                                  DateTime ioappointment,
-                                                  DateTime wappointment) rappointments,
-                                                  List<Appointment> appointments) =>
-        _appointmentsService.GetBestAppointment(rappointments.iiapointment,
+        protected Appointment GetIntervalInAppointment(AppointmentsRecord rappointments,
+                                                        List<Appointment> appointments) =>
+        _appointmentsService.GetBestAppointment(rappointments.iiappointment,
                                                 ref appointments,
                                                 true,
                                                 rappointments.eappointment,
-                                                rappointments.iiapointment,
+                                                rappointments.iiappointment,
                                                 rappointments.ioappointment,
                                                 rappointments.wappointment);
 
-        protected Appointment GetIntervalOutAppointment((DateTime eappointment,
-                                              DateTime iiapointment,
-                                              DateTime ioappointment,
-                                              DateTime wappointment) rappointments,
+        protected Appointment GetIntervalOutAppointment(AppointmentsRecord rappointments,
                                               List<Appointment> appointments) =>
-        _appointmentsService.GetBestAppointment(rappointments.ioappointment,
+            _appointmentsService.GetBestAppointment(rappointments.ioappointment,
                                             ref appointments,
                                             true,
                                             rappointments.eappointment,
-                                            rappointments.iiapointment,
+                                            rappointments.iiappointment,
                                             rappointments.ioappointment,
                                             rappointments.wappointment);
 
