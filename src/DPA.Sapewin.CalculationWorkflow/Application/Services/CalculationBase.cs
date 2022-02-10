@@ -1,18 +1,38 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public abstract class CalculationBase
+    public interface ICalculationBase
+    {
+        Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees);
+    }
+
+    public abstract class CalculationBase : ICalculationBase
     {
         protected readonly IAppointmentsService _appointmentsService;
-        public CalculationBase(IAppointmentsService appointmentsService) =>
-            _appointmentsService = appointmentsService ?? throw new ArgumentNullException(nameof(appointmentsService));
+        protected readonly IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
 
+        public CalculationBase(IAppointmentsService appointmentsService, 
+                               IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint)
+        {
+            _appointmentsService = appointmentsService ?? throw new ArgumentNullException(nameof(appointmentsService));
+            _unitOfWorkEletronicPoint = unitOfWorkEletronicPoint ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPoint));
+        }
+
+        public abstract Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees);
+
+        protected Task SaveEletronicPointsAsync(IEnumerable<EletronicPoint> eletronicPoints)
+        {
+            _unitOfWorkEletronicPoint.Repository.Update(eletronicPoints);
+            return _unitOfWorkEletronicPoint.SaveChangesAsync();
+        }
 
         protected double DiffInMinutes(EletronicPointPairs pair)
         => pair.OriginalEntry is null || pair.OriginalWayOut is null

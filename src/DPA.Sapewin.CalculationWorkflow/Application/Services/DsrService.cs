@@ -10,8 +10,9 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
     public interface IDsrService
     {
-
+        IAsyncEnumerable<IGrouping<Employee, EletronicPoint>> Calculate(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployees);
     }
+
     public class DsrService : IDsrService
     {
         private readonly IUnitOfWork<EletronicPoint> _unitOfWorkEletronicPoint;
@@ -21,7 +22,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
            _unitOfWorkEletronicPoint = unitOfWorkEletronicPoint ?? throw new ArgumentNullException(nameof(unitOfWorkEletronicPoint)); 
         }
 
-        public async IAsyncEnumerable<IGrouping<Employee, EletronicPoint>> CalculateDsrByEmployees(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployees)
+        public async IAsyncEnumerable<IGrouping<Employee, EletronicPoint>> Calculate(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployees)
         {
             foreach (var eletronicPointsByEmployee in eletronicPointsByEmployees)
             {
@@ -36,8 +37,10 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
         private IEnumerable<EletronicPoint> CalculateDsrByEmployee(in IGrouping<Employee, EletronicPoint> eletronicPointsByEmployee)
         {
-            DateTime startDate = eletronicPointsByEmployee.FirstOrDefault().Date,
-                     endDate = eletronicPointsByEmployee.LastOrDefault().Date;
+            var eletronicPointsOrdened = eletronicPointsByEmployee.OrderBy(x=> x.Date);
+            
+            DateTime startDate = eletronicPointsOrdened.FirstOrDefault().Date,
+                     endDate = eletronicPointsOrdened.LastOrDefault().Date;
 
             SetStartDate(ref startDate, eletronicPointsByEmployee.Key);
             SetEndDate(ref endDate, eletronicPointsByEmployee.Key);

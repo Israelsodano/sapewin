@@ -1,26 +1,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface IAbsencesService
+    public interface IAbsencesService : ICalculationBase
     {
-        IEnumerable<EletronicPoint> CalculateAbsences(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eppGroups);
+        
     }
+
     public class AbsencesService : CalculationBase, IAbsencesService
     {
-        public AbsencesService(IAppointmentsService appointmentsService) : base(appointmentsService)
+        public AbsencesService(IAppointmentsService appointmentsService, 
+                               IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
         { }
-        
-        public IEnumerable<EletronicPoint> CalculateAbsences(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eppGroups)
+
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
         {
-            foreach (var ep in eppGroups)
+            var eletronicPoints = CalculateAbsencesByEletronicPoints(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+
+        private IEnumerable<EletronicPoint> CalculateAbsencesByEletronicPoints(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            foreach (var eletronicPointsByEmployee in eletronicPointsByEmployees)
             {
-                var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(ep.Key);
-                yield return CalculateAbsence(ep.Key, OrganizePairs(ep.Key, ep, rappointments.eappointment).ToList(), rappointments);
+                var rappointments = _appointmentsService.GetAppointmentsBasedInEletronicPoint(eletronicPointsByEmployee.Key);
+                yield return CalculateAbsence(eletronicPointsByEmployee.Key, 
+                             OrganizePairs(eletronicPointsByEmployee.Key, eletronicPointsByEmployee, rappointments.eappointment).ToList(), rappointments);
             }
         }
 

@@ -1,20 +1,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface IExtraHoursService
+    public interface IExtraHoursService : ICalculationBase
     {
-        IEnumerable<EletronicPoint> CalculateExtraHours(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByPairs);
+        
     }
     public class ExtraHoursService : CalculationBase, IExtraHoursService
     {
-        public ExtraHoursService(IAppointmentsService appointmentsService) : base(appointmentsService) { }
+        public ExtraHoursService(IAppointmentsService appointmentsService, 
+                                 IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
+        { }
 
-        public IEnumerable<EletronicPoint> CalculateExtraHours(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByPairs)
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            var eletronicPoints = CalculateExtraHours(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+        
+        private IEnumerable<EletronicPoint> CalculateExtraHours(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByPairs)
         {
             foreach (var ep in eletronicPointsByPairs)
                 yield return CalculateExtraHour(ep.Key, ep);
@@ -77,6 +91,5 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             where (ep.OriginalEntry ?? ep.OriginalWayOut).DateHour >= rappointments.eappointment
                   && (ep.OriginalWayOut ?? ep.OriginalEntry).DateHour <= rappointments.wappointment
             select ep).Sum(ep => DiffInMinutes(ep));
-
     }
 }

@@ -1,23 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface IArrearService
+    public interface IArrearService : ICalculationBase
     {
-        IEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint);
+        
     }
 
     public class ArrearsService : CalculationBase, IArrearService
     {
 
-        public ArrearsService(IAppointmentsService appointmentsService) : base(appointmentsService)
+        public ArrearsService(IAppointmentsService appointmentsService, 
+                               IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
         { }
 
-        public IEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint)
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            var eletronicPoints = CalculateArrearsByEletronicPoint(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+
+        private IEnumerable<EletronicPoint> CalculateArrearsByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint)
         {
             foreach (var pairsByEletronicPoint in eletronicPointsPairsByEletronicPoint)
                 yield return CalculateArrears(pairsByEletronicPoint.Key, pairsByEletronicPoint);

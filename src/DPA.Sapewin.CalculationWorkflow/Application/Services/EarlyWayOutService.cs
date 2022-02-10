@@ -1,21 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface IEarlyWayOutService
+    public interface IEarlyWayOutService : ICalculationBase
     {
-        IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups);
+        
     }
     public class EarlyWayOutService : CalculationBase, IEarlyWayOutService
     {
-        public EarlyWayOutService(IAppointmentsService appointmentService) : base(appointmentService)
+        public EarlyWayOutService(IAppointmentsService appointmentsService, 
+                               IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
         { }
-        public IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups)
+
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            var eletronicPoints = CalculateEarlyWayOut(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+
+        private IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups)
         {
             foreach (var ep in eletronicPointPairsGroups)
                 yield return CalculateEarlyWayOut(ep.Key, ep);

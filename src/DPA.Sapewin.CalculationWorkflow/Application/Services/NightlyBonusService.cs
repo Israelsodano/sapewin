@@ -1,21 +1,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface INightlyBonusService
+    public interface INightlyBonusService : ICalculationBase
     {
-        IEnumerable<EletronicPoint> CalculateNightlyBonuss(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> groups);
+        
     }
     public class NightlyBonusService : CalculationBase, INightlyBonusService
     {
-        public NightlyBonusService(IAppointmentsService appointmentsService) : base(appointmentsService)
+        public NightlyBonusService(IAppointmentsService appointmentsService, 
+                                 IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
         { }
 
-        public IEnumerable<EletronicPoint> CalculateNightlyBonuss(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> groups)
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            var eletronicPoints = CalculateNightlyBonuses(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+
+        private IEnumerable<EletronicPoint> CalculateNightlyBonuses(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> groups)
         {
             foreach (var pairsByEletronicPoint in groups)
                 yield return CalculateNightlyBonus(pairsByEletronicPoint.Key, pairsByEletronicPoint);
