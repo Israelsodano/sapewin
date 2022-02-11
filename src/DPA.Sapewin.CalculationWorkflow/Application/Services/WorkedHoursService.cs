@@ -1,16 +1,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DPA.Sapewin.Domain.Entities;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public class WorkedHoursService : CalculationBase
+    public interface IWorkedHoursService : ICalculationBase
     {
-        public WorkedHoursService(IAppointmentsService appointmentsService) : base(appointmentsService)
+
+    }
+
+    public class WorkedHoursService : CalculationBase, IWorkedHoursService
+    {
+        public WorkedHoursService(IAppointmentsService appointmentsService, 
+                                 IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
         { }
 
-        public IEnumerable<EletronicPoint> CalculateWorkedHoursByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint)
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            var eletronicPoints = CalculateWorkedHoursByEletronicPoint(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+
+        private IEnumerable<EletronicPoint> CalculateWorkedHoursByEletronicPoint(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsPairsByEletronicPoint)
         {
             foreach (var eletronicPointPairs in eletronicPointsPairsByEletronicPoint)
                 yield return CalculateWorkedHours(eletronicPointPairs.Key, eletronicPointPairs);

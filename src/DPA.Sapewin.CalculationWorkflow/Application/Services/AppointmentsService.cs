@@ -8,6 +8,7 @@ using System.Linq;
 using DPA.Sapewin.Domain.Models;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.AspNetCore.Mvc.Filters;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
@@ -25,12 +26,10 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         int GetOnlyMinutesFromDateTime(DateTime? date);
 
 
-        (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) 
-                GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint);
-
+        AppointmentsRecord GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint);
 
         IAsyncEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> 
-                SnapEmployeesAppointments(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployee);
+            SnapEmployeesAppointments(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployee);
     }
 
     public class AppointmentsService : IAppointmentsService
@@ -222,11 +221,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
         public int GetOnlyMinutesFromDateTime(DateTime? date) => !date.HasValue ? 0 : (date.Value.Hour * 60) + date.Value.Minute;
 
-        private Appointment GetWayOutAppointment((DateTime eappointment,
-                                                                DateTime iiappointment,
-                                                                DateTime ioappointment,
-                                                                DateTime wappointment) rappointments,
-                                                                ref List<Appointment> appointments) =>
+        private Appointment GetWayOutAppointment(AppointmentsRecord rappointments,
+                                                 ref List<Appointment> appointments) =>
 
             GetBestAppointment(rappointments.wappointment,
                                 ref appointments,
@@ -236,10 +232,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                 rappointments.ioappointment,
                                 rappointments.wappointment);
 
-        private Appointment GetIntervalInAppointment((DateTime eappointment,
-                                                    DateTime iiappointment,
-                                                    DateTime ioappointment,
-                                                    DateTime wappointment) rappointments,
+        private Appointment GetIntervalInAppointment(AppointmentsRecord rappointments,
                                                     EletronicPoint eletronicPoint,
                                                     ref List<Appointment> appointments)
         {
@@ -266,10 +259,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             return iiappointment;
         }
 
-        private Appointment GetIntervalOutAppointment((DateTime eappointment,
-                                                    DateTime iiappointment,
-                                                    DateTime ioappointment,
-                                                    DateTime wappointment) rappointments,
+        private Appointment GetIntervalOutAppointment(AppointmentsRecord rappointments,
                                                     EletronicPoint eletronicPoint,
                                                     ref List<Appointment> appointments)
         {
@@ -296,11 +286,8 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             return ioappointment;
         }
 
-        private Appointment GetEntryAppointment((DateTime eappointment,
-                                                                DateTime iiappointment,
-                                                                DateTime ioappointment,
-                                                                DateTime wappointment) rappointments,
-                                                                ref List<Appointment> appointments) =>
+        private Appointment GetEntryAppointment(AppointmentsRecord rappointments,
+                                                ref List<Appointment> appointments) =>
 
             GetBestAppointment(rappointments.eappointment,
                                 ref appointments,
@@ -351,7 +338,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
              select d.Target).FirstOrDefault();
 
 
-        public (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint)
+        public AppointmentsRecord GetAppointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint)
         {
             DateTime eappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.Entry),
                      iiappointment = eletronicPoint.Date.AddMinutes(eletronicPoint.Schedule.Period.IntervalIn ?? 0)
@@ -371,7 +358,10 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                                                                                        eletronicPoint.Schedule.Period.WayOut) : 
                                                                     0);
 
-            return (eappointment, iiappointment, ioappointment, wappointment);
+            return new(eappointment, 
+                        iiappointment, 
+                        ioappointment, 
+                        wappointment);
         }
 
         public int GetDayCompensation(int entry, int wayOut) => wayOut <= entry ? 1 : 0;

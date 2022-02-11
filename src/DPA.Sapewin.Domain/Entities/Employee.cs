@@ -45,6 +45,9 @@ namespace DPA.Sapewin.Domain.Entities
 
         public bool Match(Employee employee)
         => this.CompanyId == employee.CompanyId && this.Id == employee.Id;
+
+        public bool Belongs(EletronicPoint x) => 
+            this.Id == x.EmployeeId && this.CompanyId == x.CompanyId;
     }
 
     public enum EmployeeHoliday
