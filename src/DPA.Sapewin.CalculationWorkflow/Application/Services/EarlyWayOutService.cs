@@ -1,20 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using DPA.Sapewin.CalculationWorkflow.Application.Records;
 using DPA.Sapewin.Domain.Entities;
 using DPA.Sapewin.Domain.Models;
+using DPA.Sapewin.Repository;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 {
-    public interface IEarlyWayOutService
+    public interface IEarlyWayOutService : ICalculationBase
     {
-        IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups);
+        
     }
     public class EarlyWayOutService : CalculationBase, IEarlyWayOutService
     {
-        public EarlyWayOutService(IAppointmentsService appointmentService) : base(appointmentService)
+        public EarlyWayOutService(IAppointmentsService appointmentsService, 
+                               IUnitOfWork<EletronicPoint> unitOfWorkEletronicPoint) 
+                               : base(appointmentsService, 
+                                      unitOfWorkEletronicPoint)
         { }
-        public IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups)
+
+        public override async Task<IEnumerable<EletronicPoint>> Calculate(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointsByEmployees)
+        {
+            var eletronicPoints = CalculateEarlyWayOut(eletronicPointsByEmployees);
+            await SaveEletronicPointsAsync(eletronicPoints);
+            
+            return eletronicPoints;
+        }
+
+        private IEnumerable<EletronicPoint> CalculateEarlyWayOut(IEnumerable<IGrouping<EletronicPoint, EletronicPointPairs>> eletronicPointPairsGroups)
         {
             foreach (var ep in eletronicPointPairsGroups)
                 yield return CalculateEarlyWayOut(ep.Key, ep);
@@ -46,7 +61,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             return SetValuesInEletronicPoint(eletronicPoint, fEarlyWayOut, sEarlyWayOut);
         }
         private IEnumerable<DateTime> GetAllWayOutApointmentsBasedInEletronicPoint(EletronicPoint eletronicPoint,
-            (DateTime eappointment, DateTime iiappointment, DateTime ioappointment, DateTime wappointment) rappointments)
+                                                                                   AppointmentsRecord rappointments)
         {
             var ax = (from aux in eletronicPoint.Schedule.AuxiliaryIntervals ?? new AuxiliaryInterval[] { }
                       where aux.DiscountInterval && aux.Kind == AuxiliaryIntervalKind.Fixed
@@ -55,9 +70,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
                               .AddDays(_appointmentsService
                                           .GetOnlyMinutesFromDateTime(rappointments.eappointment) > aux.Entry ?
                                               1 : 0
-                              )).ToList();
-
-            ax.AddRange(new[] { rappointments.ioappointment, rappointments.wappointment });
+                              )).Union(new[] { rappointments.ioappointment, rappointments.wappointment });
 
             return ax;
         }

@@ -8,8 +8,8 @@ namespace DPA.Sapewin.Domain.Entities
     {
         public Guid EmployeeId { get; set; }
         public Guid CompanyId { get; set; }
-        public string DsrPago { get; set; }
-        public string DsrDescontado { get; set; }
+        public double PaidDsr { get; set; }
+        public double DiscountedDsr { get; set; }
         public double FirstPeriodPaidExtraHour { get; set; }
         public double SecondPeriodPaidExtraHour { get; set; }
         public double IntervalPaidExtraHour { get; set; }
@@ -18,7 +18,7 @@ namespace DPA.Sapewin.Domain.Entities
         public string DesExtrapPer2 { get; set; }
         public int? IDHorario { get; set; }
         public DateTime Date { get; set; }
-        public bool Tratado { get; set; }
+        public bool Trated { get; set; }
         public int PaidHoursFirstPeriodInMinutes { get; set; }
         public int PaidHoursSecondPeriodInMinutes { get; set; }
         public string FaltaPagPer1 { get; set; }
@@ -46,7 +46,7 @@ namespace DPA.Sapewin.Domain.Entities
         public IEnumerable<Appointment> Appointments { get; set; }
         public Schedule Schedule { get; set; }
         public Employee Employee { get; set; }
-
+        public string NonScheduleReference { get; set; }
 
         public double[] GetAbsences() => new[]
         {

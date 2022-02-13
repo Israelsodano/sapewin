@@ -76,13 +76,13 @@ namespace DPA.Sapewin.Domain.Entities
 
         public bool ControleAutomaticoDsr { get; set; }
 
-        public bool? DsrProporcionalHoras { get; set; }
+        public bool? ProportionalDsrKindHour { get; set; }
 
-        public bool DescontarDsrSemana { get; set; }
+        public bool NeedDiscountWeeklyDsr { get; set; }
 
-        public bool? DescDsrAnterioraFalta { get; set; }
+        public bool? DiscountDsrBeforeAbsence { get; set; }
 
-        public string OcorrenciaSemanalDsr { get; set; }
+        public double WeeklyOccurrenceDsr { get; set; }
 
         public Tipodetabela TipodeTabela { get; set; }
 

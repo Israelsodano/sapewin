@@ -66,14 +66,14 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         => processingType switch
         {
             ProcessingTypes.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))
-                    && !x.Tratado),
+                    && (employees.Any(y => y.Belongs(x)))
+                    && !x.Trated),
 
             ProcessingTypes.Recalculate => (x => (startDate <= x.Date && x.Date <= endDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
+                    && (employees.Any(y => y.Belongs(x)))),
 
             ProcessingTypes.Reanalyze => (x => (startDate <= x.Date && x.Date <= endDate)
-                    && (employees.Any(y => y.Id == x.EmployeeId && y.CompanyId == x.CompanyId))),
+                    && (employees.Any(y => y.Belongs(x)))),
 
             _ => throw new NotImplementedException()
         };
