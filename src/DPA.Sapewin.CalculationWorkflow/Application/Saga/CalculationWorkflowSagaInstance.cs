@@ -6,13 +6,15 @@ using MassTransit.Saga;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Saga
 {
-    public class StartProcessSagaInstance : SagaStateMachineInstance, ISagaVersion
+    public class CalculationWorkflowSagaInstance : SagaStateMachineInstance, ISagaVersion
     {
         public string CurrentState { get; set; }
         public DateTime OrderDate { get; set; }
         public IList<object> Events { get; set; }
         public Guid CorrelationId { get; set; }
         public int Version { get; set; }
+        public CompositeEventStatus Status { get; set; }
+
 
         public void Apply(object o)
         {

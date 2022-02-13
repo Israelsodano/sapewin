@@ -1,10 +1,7 @@
-using System;
-using MassTransit;
+using DPA.Sapewin.CalculationWorkflow.Domain.Common;
 
 namespace DPA.Sapewin.CalculationWorkflow.Domain.Commands
 {
-    public class GetGenericHolidaysCommand : CorrelatedBy<Guid>
-    {
-        public Guid CorrelationId { get; set; }
-    }
+    public class GetGenericHolidaysCommand : CalculationWorkflowMessage
+    { }
 }

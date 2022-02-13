@@ -2,7 +2,6 @@ using DPA.Sapewin.CalculationWorkflow.Domain.Common;
 
 namespace DPA.Sapewin.CalculationWorkflow.Domain.Commands
 {
-    public class StartProcessCommand : CalculationWorkflowMessage
-    {
-    }
+    public class GetEletronicPointsCommand : CalculationWorkflowMessage
+    { }
 }

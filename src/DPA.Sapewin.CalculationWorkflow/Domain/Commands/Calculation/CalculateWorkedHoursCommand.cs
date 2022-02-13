@@ -1,5 +1,7 @@
+using DPA.Sapewin.CalculationWorkflow.Domain.Common;
+
 namespace DPA.Sapewin.CalculationWorkflow.Domain.Commands.Calculation
 {
-    public class CalculateWorkedHoursCommand : BaseCalculationCommand
+    public class CalculateWorkedHoursCommand : CalculationWorkflowMessage
     { }
 }
