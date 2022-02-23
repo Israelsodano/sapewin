@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DPA.Sapewin.Domain.Models.Enums
 {
-    public enum ProcessingTypes
+    public enum ProcessingType
     {
         Normal, Recalculate, Reanalyze
     }

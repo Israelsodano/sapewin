@@ -28,8 +28,10 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             _scheduleUnit = scheduleUnit ?? throw new ArgumentNullException(nameof(scheduleUnit));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-        public async IAsyncEnumerable<EmployeeCalendars> BuildEmployeeCalendars(IEnumerable<Employee> employees, DateTime startDate,
-            DateTime endDate, IEnumerable<GenericHoliday> genericHolidays)
+        public async IAsyncEnumerable<EmployeeCalendars> BuildEmployeeCalendars(IEnumerable<Employee> employees, 
+                                                                                DateTime startDate,
+                                                                                DateTime endDate, 
+                                                                                IEnumerable<GenericHoliday> genericHolidays)
         {
             startDate = startDate.AddDays(-10);
             endDate = endDate.AddDays(10);

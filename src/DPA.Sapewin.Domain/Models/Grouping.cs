@@ -7,6 +7,15 @@ namespace DPA.Sapewin.Domain.Models
     {
         public Grouping(TKey key, IEnumerable<TElement> collection)
             : base(collection) => Key = key;
+
+        public Grouping()
+        { }
+
+        public void Add(TKey key, TElement element)
+        {
+            
+        }
+        
         public TKey Key { get; }
     }
 }

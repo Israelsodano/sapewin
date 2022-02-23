@@ -15,7 +15,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
     public interface IClearTablesService
     {
         Task Clear(DateTime startDate, DateTime endDate,
-            IEnumerable<Employee> employees, ProcessingTypes processingType);
+                   IEnumerable<Employee> employees, ProcessingType processingType);
     }
 
     public class ClearTablesService : IClearTablesService
@@ -37,7 +37,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
         }
 
         public async Task Clear(DateTime startDate, DateTime endDate,
-            IEnumerable<Employee> employees, ProcessingTypes processingType)
+            IEnumerable<Employee> employees, ProcessingType processingType)
         {
             _logger.LogInformation("Getting normal eletronic points");
             var normalEletronicPointsList = GetNormalEletronicPoints(startDate, endDate, processingType, employees);
@@ -53,7 +53,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             await _unitOfWorkEletronicPoint.SaveChangesAsync();
             _logger.LogInformation("Deleted eletronic points");
 
-            if (processingType == ProcessingTypes.Recalculate)
+            if (processingType == ProcessingType.Recalculate)
             {
                 _unitOfWorkAppointments.Repository.Delete(x =>
                     appointments.Any(y => y.OriginalEntry.Id == x.Id || y.OriginalWayOut.Id == x.Id));
@@ -62,24 +62,24 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
             }
         }
         private Expression<Func<EletronicPoint, bool>> ChooseExpression(DateTime startDate, DateTime endDate,
-            ProcessingTypes processingType, IEnumerable<Employee> employees)
+            ProcessingType processingType, IEnumerable<Employee> employees)
         => processingType switch
         {
-            ProcessingTypes.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
+            ProcessingType.Normal => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Belongs(x)))
                     && !x.Trated),
 
-            ProcessingTypes.Recalculate => (x => (startDate <= x.Date && x.Date <= endDate)
+            ProcessingType.Recalculate => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Belongs(x)))),
 
-            ProcessingTypes.Reanalyze => (x => (startDate <= x.Date && x.Date <= endDate)
+            ProcessingType.Reanalyze => (x => (startDate <= x.Date && x.Date <= endDate)
                     && (employees.Any(y => y.Belongs(x)))),
 
             _ => throw new NotImplementedException()
         };
 
         private IEnumerable<EletronicPoint> GetNormalEletronicPoints(DateTime startDate, DateTime endDate,
-            ProcessingTypes processingType, IEnumerable<Employee> employees)
+            ProcessingType processingType, IEnumerable<Employee> employees)
         => _unitOfWorkEletronicPoint.Repository.GetAll(
                 ChooseExpression(startDate, endDate, processingType, employees))
                 .Include(x => x.Pairs)

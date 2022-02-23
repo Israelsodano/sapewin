@@ -1,9 +1,8 @@
 using Automatonymous;
 using DPA.Sapewin.CalculationWorkflow.Application.Consumers;
 using DPA.Sapewin.CalculationWorkflow.Application.Saga;
-using DPA.Sapewin.CalculationWorkflow.Domain.Commands;
+using DPA.Sapewin.CalculationWorkflow.Domain.Events;
 using MassTransit;
-using MassTransit.Saga;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,28 +12,29 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Extensions
     {
         public static IServiceCollection ConfigureMassTransit(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<ISagaRepository<CalculationWorkflowSagaInstance>>(x => new InMemorySagaRepository<CalculationWorkflowSagaInstance>());
             services.AddSingleton<SagaStateMachine<CalculationWorkflowSagaInstance>, CalculationWorkflowSagaStateMachine>();
 
             services.AddMassTransit(configure =>
             {
-                configure.AddSagaStateMachine<CalculationWorkflowSagaStateMachine, CalculationWorkflowSagaInstance>();
+                configure.AddSagaStateMachine<CalculationWorkflowSagaStateMachine, 
+                                              CalculationWorkflowSagaInstance>()
+                                .RedisRepository(configuration.GetConnectionString("Redis"));
 
-                configure.AddConsumer<CalculationWorkflowConsumer>();
+                configure.AddConsumer<ClearTablesConsumer>();
 
-                configure.AddBus(registration => Bus.Factory.CreateUsingRabbitMq(context =>
-                {
-                    context.Host(configuration.GetConnectionString("RabbitMq"));
+                configure.UsingRabbitMq((context, cfg) => {
+
+                    cfg.Host(configuration.GetConnectionString("RabbitMq"));
 
                     var sagaEndpoint = "calculation-workflow-saga";
 
-                    context.Message<StartProcessCommand>(x => x.SetEntityName(sagaEndpoint));
+                    cfg.Message<IStartProcessEventWasSubmitted>(x => x.SetEntityName(sagaEndpoint));
 
-                    context.ReceiveEndpoint(sagaEndpoint, e =>
+                    cfg.ReceiveEndpoint(sagaEndpoint, e =>
                     {
-                        e.StateMachineSaga<CalculationWorkflowSagaInstance>(registration);
+                        e.StateMachineSaga<CalculationWorkflowSagaInstance>(context);
                     });
-                }));
+                });
             });
 
             services.AddMassTransitHostedService();

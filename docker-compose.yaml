@@ -1,0 +1,27 @@
+version: "3.2"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+        - 5672:5672
+        - 15672:15672
+  redis:
+    image: redis
+    ports:
+        - 6379:6379
+    networks:
+        - default-network
+        
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server
+    ports:
+        - 1433:1433
+    environment:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=dpa5461*
+    networks:
+        - default-network
+    
+networks:
+  default-network:
+    driver: bridge

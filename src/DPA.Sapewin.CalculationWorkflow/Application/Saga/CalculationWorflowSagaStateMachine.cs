@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Automatonymous;
-using DPA.Sapewin.CalculationWorkflow.Domain.Commands;
-using DPA.Sapewin.CalculationWorkflow.Domain.Commands.Calculation;
 using DPA.Sapewin.CalculationWorkflow.Domain.Events;
-using DPA.Sapewin.Domain.Entities;
+using DPA.Sapewin.CalculationWorkflow.Domain.Events.BuildCalendars;
+using DPA.Sapewin.CalculationWorkflow.Domain.Events.ClearTables;
+using DPA.Sapewin.CalculationWorkflow.Domain.Events.ImportDirtyNotes;
 using MassTransit;
 
 namespace DPA.Sapewin.CalculationWorkflow.Application.Saga
@@ -12,86 +10,79 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Saga
     public class CalculationWorkflowSagaStateMachine :
         MassTransitStateMachine<CalculationWorkflowSagaInstance>
     {
-        public CalculationWorkflowSagaStateMachine(DateTime startDate, DateTime endDate, IEnumerable<Employee> employees)
+        public CalculationWorkflowSagaStateMachine()
         {
             Event(() => StartProcess, x => x.CorrelateById(x => x.Message.CorrelationId));
-            CompositeEvent(SnapAppointmentsCompositeEvent, x => x.Status., AppointmentsWereGotten, EletronicPointsWereGotten, EmployeeCalendarsWereBuilt);
 
-            DuringAny(
-                When(SnapAppointmentsCompositeEvent)
-                    .Then(x => x.Instance.Apply(x.)))
-            InstanceState(x => x.CurrentState);
-
+            InstanceState(x=> x.CurrentState);
+          
             Initially(
                 When(StartProcess)
-                    .Then(x => x.Instance.Apply(x.Data))
-                    .PublishAsync(context => context.Init<ClearTableCommand>(context.Data))
-                    .TransitionTo(CleaningTables),
+                    .Then(x => { 
+                        x.Instance.Apply(x.Data);
+                        x.Instance.Apply(x.Data.Employees, 
+                                         x.Data.StartDate,
+                                         x.Data.EndDate,
+                                         x.Data.ProcessingType); 
+                    })
+                    .PublishAsync(context => context.Init<IClearTablesWasSubmittedEvent>(new {
+                        context.Data.CorrelationId,
+                        context.Data.Employees,
+                        context.Data.StartDate,
+                        context.Data.EndDate,
+                        context.Data.ProcessingType,
+                    }))
+                    .PublishAsync(context => context.Init<IBuildEmployeeCalendarsWasSubmittedEvent>(new {
+                        context.Data.CorrelationId,
+                        context.Data.Employees,
+                        context.Data.StartDate,
+                        context.Data.EndDate,
+                    }))
+                    .TransitionTo(InitialBuildsAndImportations));
 
-                When(StartProcess)
-                    .Then(x => x.Instance.Apply(x.Data))
-                    .PublishAsync(context => context.Init<GetGenericHolidaysCommand>(context.Data))
-                    .TransitionTo(GettingGenericHolidays));
+            CompositeEvent(() => BuildAndImportationsWasDone, 
+                            x => x.CurrentState, 
+                            CalendarsWasBuilded, 
+                            BuildedCalendarsWasDone,
+                            ImportDirtyNotesWasDone);
 
-            During(GettingGenericHolidays,
-                When(GenericHolidaysWereGotten)
-                    .Then(x => x.Instance.Apply(x.Data))
-                    .Publish(context
-                        => context.Init<BuildEmployeeCalendarsCommand>(
-                                BuildEmployeeCalendarsCommand.BuildInitialized(
-                                    startDate, endDate, employees, context.Data.GottenGenericHolidays)))
-                    .TransitionTo(BuildingEmployeeCalendars));
+            During(InitialBuildsAndImportations, 
+                When(TablesWasCleared)
+                .Then(x => x.Instance.Apply(x.Data))
+                .Publish(context => context.Init<IClearTablesWasDoneEvent>(new { 
+                    context.Data.CorrelationId
+                }))
+                .Publish(context => context.Init<IImportDirtyNotesSubmittedEvent>(new { 
+                    context.Data.CorrelationId,
+                    context.Instance.Employees,
+                    context.Instance.StartDate,
+                    context.Instance.EndDate,
+                })),
+                When(CalendarsWasBuilded)
+                .Then(x => x.Instance.Apply(x.Data))
+                .Publish(context => context.Init<IBuildCalendarsWasDoneEvent>(new { 
+                    context.Data.CorrelationId 
+                })),
+                When(DirtyNotesWasImported)
+                .Then(x => x.Instance.Apply(x.Data))
+                .Publish(context => context.Init<ImportDirtyNotesWasDoneEvent>(new { 
+                    context.Data.CorrelationId 
+                })), 
+                When(BuildAndImportationsWasDone));
 
-            During(BuildingEmployeeCalendars,
-                When(EmployeeCalendarsWereBuilt)
-                    .Then(x => x.Instance.Apply(x.Data))
-                    .TransitionTo(GettingAppointments),
-
-                When(AppointmentsWereGotten)
-                    .Then(x => x.Instance.Apply(x.Data))
-                    .Publish(context => context.Init<GetEletronicPointsCommand>(context.Data))
-                    .TransitionTo(GettingEletronicPoints));
+        
         }
-        public State CleaningTables { get; private set; }
-        public State BuildingEmployeeCalendars { get; private set; }
-        public State CalculatingArrears { get; private set; }
-        public State CalculatingEarlyWayOuts { get; private set; }
-        public State CalculatingWorkedHours { get; private set; }
-        public State CalculatingAbsences { get; private set; }
-        public State CalculatingExtraHours { get; private set; }
-        public State CalculatingNightlyAdditional { get; private set; }
-        public State GettingGenericHolidays { get; private set; }
-        public State GettingAppointments { get; private set; }
-        public State GettingEletronicPoints { get; private set; }
-        public State GettingDirtyAppointments { get; private set; }
 
+        public State InitialBuildsAndImportations { get; private set; }
+        
 
-        #region Composite
-        public Event SnapAppointmentsCompositeEvent { get; private set; }
-
-        #endregion
-        #region Commands
-        public Event<StartProcessCommand> StartProcess { get; private set; }
-        public Event<ClearTableCommand> ClearTable { get; private set; }
-        public Event<GetGenericHolidaysCommand> GetGenericHolidays { get; private set; }
-        public Event<BuildEmployeeCalendarsCommand> BuildEmployeeCalendars { get; private set; }
-        public Event<CalculateArrearsCommand> CalculateArrears { get; private set; }
-        public Event<CalculateEarlyWayOutCommand> CalculateEarlyWayOut { get; private set; }
-        public Event<CalculateWorkedHoursCommand> CalculateWorkedHours { get; private set; }
-        public Event<CalculateAbsencesCommand> CalculateAbsences { get; private set; }
-        public Event<CalculateExtraHoursCommand> CalculateExtraHours { get; private set; }
-        public Event<CalculateNightlyAdditionalCommand> CalculateNightlyAdditional { get; private set; }
-        public Event<GetAppointmentsCommand> GetAppointments { get; private set; }
-        public Event<GetEletronicPointsCommand> GetEletronicPoints { get; private set; }
-        #endregion
-
-        #region Events
-        public Event<GenericHolidaysWereGottenEvent> GenericHolidaysWereGotten { get; private set; }
-        public Event<EmployeeCalendarsWereBuiltEvent> EmployeeCalendarsWereBuilt { get; private set; }
-        public Event<AppointmentsWereGottenEvent> AppointmentsWereGotten { get; private set; }
-        public Event<EletronicPointsWereGottenEvent> EletronicPointsWereGotten { get; private set; }
-
-
-        #endregion
+        public Event BuildAndImportationsWasDone { get; private set; }
+        public Event<IStartProcessEventWasSubmitted> StartProcess { get; private set; }
+        public Event<ITablesWasClearedSuccessfullyEvent> TablesWasCleared { get; private set; }
+        public Event<IClearTablesWasDoneEvent> ClearedTablesWasDone { get; private set; }
+        public Event<IEmployeeCalendarsSuccessfullyBuildedEvent> CalendarsWasBuilded { get; private set; }
+        public Event<IBuildCalendarsWasDoneEvent> BuildedCalendarsWasDone { get; private set; }
+        public Event<IDirtyNotesSuccessfullyImportedEvent> DirtyNotesWasImported { get; private set; }
+        public Event<ImportDirtyNotesWasDoneEvent> ImportDirtyNotesWasDone { get; private set; }
     }
 }

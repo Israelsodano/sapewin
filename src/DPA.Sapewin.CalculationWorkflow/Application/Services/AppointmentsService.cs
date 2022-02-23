@@ -398,6 +398,7 @@ namespace DPA.Sapewin.CalculationWorkflow.Application.Services
 
             return appointments;
         }
+        
         public async IAsyncEnumerable<IGrouping<Employee, EletronicPointPairs>> SnapEmployeesAppointmentsLoad(IEnumerable<IGrouping<Employee, EletronicPoint>> eletronicPointsByEmployee)
         {
             foreach (var employee in eletronicPointsByEmployee)
